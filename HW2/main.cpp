@@ -7,20 +7,16 @@
 * NYU School of Engineering Policies and Procedures on
 * Academic Misconduct.
 **/
-
 /**
  Player 1: guinea pig on the left, controls: W (up), S (down)
   Player 2: rabbit on the right, controls: up key, down key
  */
-
 #define GL_SILENCE_DEPRECATION
 #define STB_IMAGE_IMPLEMENTATION
 #define LOG(argument) std::cout << argument << '\n'
-
 #ifdef _WINDOWS
 #include <GL/glew.h>
 #endif
-
 #define GL_GLEXT_PROTOTYPES 1
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -30,29 +26,21 @@
 #include "stb_image.h"
 #include "cmath"
 #include <ctime>
-
 enum AppStatus { RUNNING, TERMINATED };
-
 constexpr float WINDOW_SIZE_MULT = 1.0f;
-
 constexpr int WINDOW_WIDTH  = 640 * WINDOW_SIZE_MULT,
               WINDOW_HEIGHT = 480 * WINDOW_SIZE_MULT;
-
 constexpr float BG_RED     = 0.9765625f,
                 BG_GREEN   = 0.97265625f,
                 BG_BLUE    = 0.9609375f,
                 BG_OPACITY = 1.0f;
-
 constexpr int VIEWPORT_X = 0,
           VIEWPORT_Y = 0,
           VIEWPORT_WIDTH  = WINDOW_WIDTH,
           VIEWPORT_HEIGHT = WINDOW_HEIGHT;
-
 constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
            F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
-
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
-
 /*sources:
 Rabbit:https://www.pngegg.com/en/png-bbapk/download
 Carrot:https://www.pngegg.com/en/png-eqwjv
@@ -61,59 +49,43 @@ Guinea Pig: https://www.pngegg.com/en/png-bknon/download
 constexpr char PLAYER_1_SPRITE_FILEPATH[] = "gp.png", //on the left
                PLAYER_2_SPRITE_FILEPATH[] = "rabbit.png", //on the right
                BALL_SPRITE_FILEPATH[]  = "carrot.png";
-
 constexpr float MINIMUM_COLLISION_DISTANCE = 1.0f;
 constexpr glm::vec3 INIT_SCALE_BALL = glm::vec3(0.5f, 0.5f, 0.5f),
                     INIT_POS_BALL   = glm::vec3(0.0f, 0.0f, 0.0f),
-
                     INIT_SCALE_PLAYER_1 = glm::vec3(1.5f, 1.5f, 1.0f),
                     INIT_POS_PLAYER_1  = glm::vec3(-4.5f, 0.0f, 0.0f),
-
                     INIT_SCALE_PLAYER_2 = glm::vec3(1.5f, 1.5f, 1.0f),
                     INIT_POS_PLAYER_2  = glm::vec3(4.5f, 0.0f, 0.0f);
                     
-
 SDL_Window* g_display_window;
-
 AppStatus g_app_status = RUNNING;
 ShaderProgram g_shader_program = ShaderProgram();
 glm::mat4 g_view_matrix, g_player_1_matrix, g_player_2_matrix, g_projection_matrix, g_ball_matrix;
-
 float g_previous_ticks = 0.0f;
-
 GLuint g_player_1_texture_id;
 GLuint g_player_2_texture_id;
 GLuint g_ball_texture_id;
-
 glm::vec3 g_player_1_position = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_player_1_movement = glm::vec3(0.0f, 0.0f, 0.0f);
-
 glm::vec3 g_player_2_position = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_player_2_movement = glm::vec3(0.0f, 0.0f, 0.0f);
-
 glm::vec3 g_ball_position = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_ball_movement = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_ball_velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-
-
 float g_player_1_speed = 1.0f;
 float g_player_2_speed = 1.0f;
 float initial_speed = 5.0f;
 float random_angle = glm::radians(static_cast<float>((rand() % 120) - 60));
-
 //flag to track auto mode for player 2
 bool player_2_auto_mode = false;
-
 void initialise();
 void process_input();
 void update();
 void render();
 void shutdown();
-
 constexpr GLint NUMBER_OF_TEXTURES = 1;  // to be generated, that is
 constexpr GLint LEVEL_OF_DETAIL    = 0;  // base image level; Level n is the nth mipmap reduction image
 constexpr GLint TEXTURE_BORDER     = 0;  // this value MUST be zero
-
 GLuint load_texture(const char* filepath)
 {
     // STEP 1: Loading the image file
@@ -141,7 +113,6 @@ GLuint load_texture(const char* filepath)
     
     return textureID;
 }
-
 void initialise()
 {
     SDL_Init(SDL_INIT_VIDEO);
@@ -196,13 +167,11 @@ void initialise()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
-
 void process_input()
 {
     // VERY IMPORTANT: If nothing is pressed, we don't want to go anywhere
     g_player_1_movement = glm::vec3(0.0f);
     g_player_2_movement = glm::vec3(0.0f);
-
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -244,7 +213,6 @@ void process_input()
     } else if (key_state[SDL_SCANCODE_S]) {
         g_player_1_movement.y = -1.0f; //down
     }
-
     //regular player 2 controls
     if (!player_2_auto_mode) {
         if (key_state[SDL_SCANCODE_UP]) {
@@ -254,7 +222,6 @@ void process_input()
             std::cout << g_player_2_movement.y << std::endl;
         }
     }
-
     //clamp, so they can't go off the screen
     constexpr float limit = 3.0f;
     g_player_1_position.y = glm::clamp(g_player_1_position.y, -limit, limit);
@@ -268,7 +235,6 @@ void process_input()
         g_player_2_movement = glm::normalize(g_player_2_movement);
     }
 }
-
 //void reset_ball() //reset the ball to the center of the screen with random x and y velocity
 //{
 //    g_ball_position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -279,13 +245,11 @@ void process_input()
 //    g_ball_velocity.y = initial_speed * sin(random_angle);
 //
 //}
-
 void update()
 {
     float ticks = (float) SDL_GetTicks() / MILLISECONDS_IN_SECOND; // get the current number of ticks
     float delta_time = ticks - g_previous_ticks; // the delta time is the difference from the last frame
     g_previous_ticks = ticks;
-
     //Update player 1
     g_player_1_position += g_player_1_movement * g_player_1_speed * delta_time;
     
@@ -328,7 +292,6 @@ void update()
     //ball and player 1
     float x_distance = fabs(g_player_1_position.x + INIT_POS_PLAYER_1.x - INIT_POS_BALL.x) -
         ((INIT_SCALE_BALL.x + INIT_SCALE_PLAYER_1.x) / 2.0f);
-
     float y_distance = fabs(g_player_1_position.y + INIT_POS_PLAYER_1.y - INIT_POS_BALL.y) -
         ((INIT_SCALE_BALL.y + INIT_SCALE_PLAYER_1.y) / 2.0f);
     
@@ -339,14 +302,12 @@ void update()
     
     //ball and player 2
 }
-
 void draw_object(glm::mat4 &object_model_matrix, GLuint &object_texture_id)
 {
     g_shader_program.set_model_matrix(object_model_matrix);
     glBindTexture(GL_TEXTURE_2D, object_texture_id);
     glDrawArrays(GL_TRIANGLES, 0, 6); // we are now drawing 2 triangles, so we use 6 instead of 3
 }
-
 void render() {
     glClear(GL_COLOR_BUFFER_BIT);
     
@@ -355,7 +316,6 @@ void render() {
         -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f,  // triangle 1
         -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f   // triangle 2
     };
-
     // Textures
     float texture_coordinates[] = {
         0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,     // triangle 1
@@ -379,10 +339,7 @@ void render() {
     
     SDL_GL_SwapWindow(g_display_window);
 }
-
 void shutdown() { SDL_Quit(); }
-
-
 int main(int argc, char* argv[])
 {
     initialise();
@@ -397,3 +354,4 @@ int main(int argc, char* argv[])
     shutdown();
     return 0;
 }
+
