@@ -89,11 +89,14 @@ float initial_speed = 5.0f;
 float random_angle = glm::radians(static_cast<float>((rand() % 120) - 60));
 //flag to track auto mode for player 2
 bool player_2_auto_mode = false;
+
+
 void initialise();
 void process_input();
 void update();
 void render();
 void shutdown();
+
 constexpr GLint NUMBER_OF_TEXTURES = 1;  // to be generated, that is
 constexpr GLint LEVEL_OF_DETAIL    = 0;  // base image level; Level n is the nth mipmap reduction image
 constexpr GLint TEXTURE_BORDER     = 0;  // this value MUST be zero
@@ -268,7 +271,7 @@ void update()
     //when player 2 is in auto mode
     if (player_2_auto_mode) {
         //oscilate up and down
-        g_player_2_position.y = 3.0f *sin(ticks); //mult to inc speed
+        g_player_2_position.y = 3.0f *cos(ticks); //mult to inc speed
         g_player_2_position.y = glm::clamp(g_player_2_position.y, -3.0f, 3.0f); //keep within bounds
     } else {
         g_player_2_position += g_player_2_movement * g_player_2_speed * delta_time;
@@ -288,22 +291,27 @@ void update()
     g_player_2_matrix = glm::scale(g_player_2_matrix, INIT_SCALE_PLAYER_2);
     
     // Update ball position based on its movement
-    g_ball_position += g_ball_movement * g_ball_velocity * delta_time;
-   // g_ball_matrix = glm::translate(g_ball_matrix, glm::vec3(g_ball_position,0.0f,0.0f));
+    g_ball_position += g_ball_velocity * delta_time;
+    
+    g_ball_matrix = glm::mat4(1.0f);
+    g_ball_matrix = glm::translate(g_ball_matrix, INIT_POS_BALL);
+    g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
     
     //collisions
     
-    //ball and side walls
     
     //ball collision with top and bottom walls, ball bounces
-//    float x_distance = fabs(x_coord_a - x_coord_b) - ((width_a + width_b) / 2.0f);
-//    float y_distance = fabs(y_coord_a - y_coord_b) - ((height_a + height_b) / 2.0f);
-//
-//    if (x_distance < 0 && y_distance < 0)
-//    {
-//        // Collision!
-//    }
+    if (g_ball_position.y >= 3.0f || g_ball_position.y <= -3.0f) {
+        g_ball_velocity.y *= -1.0f; //bounce that carrot
+    }
     
+    //ball collision with L and R walls, L = player_2 scores, R = player_1 scores, ball resets
+    if (g_ball_position.y >= 3.0f || g_ball_position.y <= -3.0f) {
+        g_ball_velocity.y *= -1.0f; //bounce that carrot
+    }
+    
+    //ball collision with top and bottom walls, ball bounces
+
     //ball collision with L and R walls, L = player_2 scores, R = player_1 scores, ball resets
     
     //ball and player 1
