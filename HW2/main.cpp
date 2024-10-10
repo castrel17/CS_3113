@@ -8,9 +8,15 @@
 * Academic Misconduct.
 **/
 /**
+ -paddles/players = done
+ -single-player switch = done
+ -bounces off walls
+ -game over
+ 
  Player 1: guinea pig on the left, controls: W (up), S (down)
   Player 2: rabbit on the right, controls: up key, down key
  */
+
 #define GL_SILENCE_DEPRECATION
 #define STB_IMAGE_IMPLEMENTATION
 #define LOG(argument) std::cout << argument << '\n'
@@ -41,6 +47,11 @@ constexpr int VIEWPORT_X = 0,
 constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
            F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
+
+constexpr bool game_over = false;
+constexpr bool move_up = false;
+
+
 /*sources:
 Rabbit:https://www.pngegg.com/en/png-bbapk/download
 Carrot:https://www.pngegg.com/en/png-eqwjv
@@ -206,34 +217,36 @@ void process_input()
     }
     
     const Uint8 *key_state = SDL_GetKeyboardState(NULL);
-    
-    //Player 1 controls, can only move up or down
-    if (key_state[SDL_SCANCODE_W]) {
-        g_player_1_movement.y = 1.0f; //up
-    } else if (key_state[SDL_SCANCODE_S]) {
-        g_player_1_movement.y = -1.0f; //down
-    }
-    //regular player 2 controls
-    if (!player_2_auto_mode) {
-        if (key_state[SDL_SCANCODE_UP]) {
-            g_player_2_movement.y = 1.0f; //up
-        } else if (key_state[SDL_SCANCODE_DOWN]) {
-            g_player_2_movement.y = -1.0f; //down
-            std::cout << g_player_2_movement.y << std::endl;
+   // while(!game_over){ //only allow them to play the game when the game is not over
+        //Player 1 controls, can only move up or down
+        if (key_state[SDL_SCANCODE_W]) {
+            g_player_1_movement.y = 1.0f; //up
+        } else if (key_state[SDL_SCANCODE_S]) {
+            g_player_1_movement.y = -1.0f; //down
         }
-    }
-    //clamp, so they can't go off the screen
-    constexpr float limit = 3.0f;
-    g_player_1_position.y = glm::clamp(g_player_1_position.y, -limit, limit);
-    g_player_2_position.y = glm::clamp(g_player_2_position.y, -limit, limit);
-   
-    // This makes sure that the player can't "cheat" their way into moving
-    if (glm::length(g_player_1_movement) > 1.0f) {
-        g_player_1_movement = glm::normalize(g_player_1_movement);
-    }
-    if (glm::length(g_player_2_movement) > 1.0f) {
-        g_player_2_movement = glm::normalize(g_player_2_movement);
-    }
+        //regular player 2 controls
+        if (!player_2_auto_mode) {
+            if (key_state[SDL_SCANCODE_UP]) {
+                g_player_2_movement.y = 1.0f; //up
+            } else if (key_state[SDL_SCANCODE_DOWN]) {
+                g_player_2_movement.y = -1.0f; //down
+                std::cout << g_player_2_movement.y << std::endl;
+            }
+        }
+        //clamp, so they can't go off the screen
+        constexpr float limit = 3.0f;
+        g_player_1_position.y = glm::clamp(g_player_1_position.y, -limit, limit);
+        g_player_2_position.y = glm::clamp(g_player_2_position.y, -limit, limit);
+        
+        // This makes sure that the player can't "cheat" their way into moving
+        if (glm::length(g_player_1_movement) > 1.0f) {
+            g_player_1_movement = glm::normalize(g_player_1_movement);
+        }
+        if (glm::length(g_player_2_movement) > 1.0f) {
+            g_player_2_movement = glm::normalize(g_player_2_movement);
+        }
+    //}
+    
 }
 //void reset_ball() //reset the ball to the center of the screen with random x and y velocity
 //{
@@ -245,38 +258,42 @@ void process_input()
 //    g_ball_velocity.y = initial_speed * sin(random_angle);
 //
 //}
+
 void update()
 {
-    float ticks = (float) SDL_GetTicks() / MILLISECONDS_IN_SECOND; // get the current number of ticks
-    float delta_time = ticks - g_previous_ticks; // the delta time is the difference from the last frame
+    float ticks = (float) SDL_GetTicks() / MILLISECONDS_IN_SECOND;
+    float delta_time = ticks - g_previous_ticks;
     g_previous_ticks = ticks;
-    //Update player 1
+
+    //when player 2 is in auto mode
+    if (player_2_auto_mode) {
+        //oscilate up and down
+        g_player_2_position.y = 3.0f *sin(ticks); //mult to inc speed
+        g_player_2_position.y = glm::clamp(g_player_2_position.y, -3.0f, 3.0f); //keep within bounds
+    } else {
+        g_player_2_position += g_player_2_movement * g_player_2_speed * delta_time;
+    }
+
+    // Update Player 1
     g_player_1_position += g_player_1_movement * g_player_1_speed * delta_time;
-    
+
+    // Update matrices for rendering
     g_player_1_matrix = glm::mat4(1.0f);
-    g_player_1_matrix = glm::translate(g_player_1_matrix, INIT_POS_PLAYER_1);
-    g_player_1_matrix = glm::translate(g_player_1_matrix, g_player_1_position);
-    
-    //Update player 2
-    g_player_2_position += g_player_2_movement * g_player_2_speed * delta_time;
-    
+    g_player_1_matrix = glm::translate(g_player_1_matrix, INIT_POS_PLAYER_1 + g_player_1_position);
     g_player_2_matrix = glm::mat4(1.0f);
-    g_player_2_matrix = glm::translate(g_player_2_matrix, INIT_POS_PLAYER_2);
-    g_player_2_matrix = glm::translate(g_player_2_matrix, g_player_2_position);
+    g_player_2_matrix = glm::translate(g_player_2_matrix, INIT_POS_PLAYER_2 + g_player_2_position);
     
-    //Update ball
-    g_ball_matrix = glm::mat4(1.0f);
-    g_ball_matrix = glm::translate(g_ball_matrix, INIT_POS_BALL);
-    
-    //ensure that scale is the same
+    // Scale the players
     g_player_1_matrix = glm::scale(g_player_1_matrix, INIT_SCALE_PLAYER_1);
     g_player_2_matrix = glm::scale(g_player_2_matrix, INIT_SCALE_PLAYER_2);
-    g_ball_matrix  = glm::scale(g_ball_matrix, INIT_SCALE_BALL);
     
+    // Update ball position based on its movement
     g_ball_position += g_ball_movement * g_ball_velocity * delta_time;
    // g_ball_matrix = glm::translate(g_ball_matrix, glm::vec3(g_ball_position,0.0f,0.0f));
     
     //collisions
+    
+    //ball and side walls
     
     //ball collision with top and bottom walls, ball bounces
 //    float x_distance = fabs(x_coord_a - x_coord_b) - ((width_a + width_b) / 2.0f);
