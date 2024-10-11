@@ -48,9 +48,11 @@ constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
            F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 
-constexpr bool game_over = false;
-constexpr bool move_up = false;
 
+//these values change so can't be constexpr
+bool game_over = false;
+bool player_2_auto_mode = false; //flag to track auto mode for player 2
+bool player_1_win = false;
 
 /*sources:
 Rabbit:https://www.pngegg.com/en/png-bbapk/download
@@ -85,10 +87,8 @@ glm::vec3 g_ball_movement = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_ball_velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 float g_player_1_speed = 1.0f;
 float g_player_2_speed = 1.0f;
-float initial_speed = 5.0f;
+float initial_speed = 2.0f;
 float random_angle = glm::radians(static_cast<float>((rand() % 120) - 60));
-//flag to track auto mode for player 2
-bool player_2_auto_mode = false;
 
 
 void initialise();
@@ -233,7 +233,6 @@ void process_input()
                 g_player_2_movement.y = 1.0f; //up
             } else if (key_state[SDL_SCANCODE_DOWN]) {
                 g_player_2_movement.y = -1.0f; //down
-                std::cout << g_player_2_movement.y << std::endl;
             }
         }
         //clamp, so they can't go off the screen
@@ -251,16 +250,15 @@ void process_input()
     //}
     
 }
-//void reset_ball() //reset the ball to the center of the screen with random x and y velocity
-//{
-//    g_ball_position = glm::vec3(0.0f, 0.0f, 0.0f);
-//    float initial_speed = 5.0f;
-//    float random_angle = glm::radians((rand() % 120) - 60);
-//
-//    g_ball_velocity.x = initial_speed * cos(random_angle);
-//    g_ball_velocity.y = initial_speed * sin(random_angle);
-//
-//}
+void reset_ball(float dir) //reset the ball to the center of the screen with random x and y velocity
+{//when player 1 scores then the ball heads towards player 2 and when player 2 scores the ball heads towards player one
+    float new_random_angle = glm::radians(static_cast<float>((rand() % 120) - 60));
+    g_ball_position = glm::vec3(0.0f, 0.0f, 0.0f);
+
+    g_ball_velocity.x = initial_speed * dir*cos(new_random_angle);
+    g_ball_velocity.y = initial_speed * dir*sin(new_random_angle);
+
+}
 
 void update()
 {
@@ -298,35 +296,45 @@ void update()
     g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
     
     //collisions
-    
-    
     //ball collision with top and bottom walls, ball bounces
-    if (g_ball_position.y >= 3.0f || g_ball_position.y <= -3.0f) {
+    if (g_ball_position.y >= 3.4f || g_ball_position.y <= -3.4f) {
         g_ball_velocity.y *= -1.0f; //bounce that carrot
     }
     
     //ball collision with L and R walls, L = player_2 scores, R = player_1 scores, ball resets
-    if (g_ball_position.y >= 3.0f || g_ball_position.y <= -3.0f) {
-        g_ball_velocity.y *= -1.0f; //bounce that carrot
+    if (g_ball_position.x >= 5.5f) { //player 1 scores
+        player_1_win = true;
+        reset_ball(1.0f); //ball heads towards player 2
+    }else if (g_ball_position.x <= -5.5f) { //player 2 scores
+        reset_ball(-1.0f); //ball heads towards player 1
     }
     
-    //ball collision with top and bottom walls, ball bounces
-
-    //ball collision with L and R walls, L = player_2 scores, R = player_1 scores, ball resets
     
+    //---------------------------------DOES NOT WORK YET ---------------------------------
     //ball and player 1
-    float x_distance = fabs(g_player_1_position.x + INIT_POS_PLAYER_1.x - INIT_POS_BALL.x) -
+    float x_distance_p1 = fabs(g_player_1_position.x + INIT_POS_PLAYER_1.x - INIT_POS_BALL.x) -
         ((INIT_SCALE_BALL.x + INIT_SCALE_PLAYER_1.x) / 2.0f);
-    float y_distance = fabs(g_player_1_position.y + INIT_POS_PLAYER_1.y - INIT_POS_BALL.y) -
+    float y_distance_p1 = fabs(g_player_1_position.y + INIT_POS_PLAYER_1.y - INIT_POS_BALL.y) -
         ((INIT_SCALE_BALL.y + INIT_SCALE_PLAYER_1.y) / 2.0f);
-    
-    if (x_distance < 0.0f && y_distance < 0.0f)
+   // std::cout<< "x:"<< x_distance_p1 <<"\n";
+    if (x_distance_p1 < 0.0f && y_distance_p1 < 0.0f)
     {
-        std::cout << std::time(nullptr) << ": Collision.\n";
+        g_ball_velocity.x *= -1.0f; //bounce that carrot
     }
     
     //ball and player 2
+    float x_distance_p2 = fabs(g_player_2_position.x + INIT_POS_PLAYER_2.x - INIT_POS_BALL.x) -
+        ((INIT_SCALE_BALL.x + INIT_SCALE_PLAYER_2.x) / 2.0f);
+    float y_distance_p2 = fabs(g_player_2_position.y + INIT_POS_PLAYER_2.y - INIT_POS_BALL.y) -
+        ((INIT_SCALE_BALL.y + INIT_SCALE_PLAYER_2.y) / 2.0f);
+    std::cout<< "x:"<< x_distance_p2 <<"\n";
+    if (x_distance_p2 < 0.0f && y_distance_p2 < 0.0f)
+    {
+        g_ball_velocity.x *= -1.0f; //carrot bounce off paddle
+    }
 }
+
+
 void draw_object(glm::mat4 &object_model_matrix, GLuint &object_texture_id)
 {
     g_shader_program.set_model_matrix(object_model_matrix);
