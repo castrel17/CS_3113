@@ -61,7 +61,7 @@ Guinea Pig: https://www.pngegg.com/en/png-bknon/download
  */
 constexpr char PLAYER_1_SPRITE_FILEPATH[] = "gp.png", //on the left
                PLAYER_2_SPRITE_FILEPATH[] = "rabbit.png", //on the right
-               BALL_SPRITE_FILEPATH[]  = "carrot.png";
+               BALL_SPRITE_FILEPATH[]  = "pumpkin.png";
 constexpr float MINIMUM_COLLISION_DISTANCE = 1.0f;
 constexpr glm::vec3 INIT_SCALE_BALL = glm::vec3(0.5f, 0.5f, 0.5f),
                     INIT_POS_BALL   = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -298,7 +298,7 @@ void update()
     //collisions
     //ball collision with top and bottom walls, ball bounces
     if (g_ball_position.y >= 3.4f || g_ball_position.y <= -3.4f) {
-        g_ball_velocity.y *= -1.0f; //bounce that carrot
+        g_ball_velocity.y *= -1.0f; //bounce
     }
     
     //ball collision with L and R walls, L = player_2 scores, R = player_1 scores, ball resets
@@ -312,29 +312,31 @@ void update()
     
     //---------------------------------DOES NOT WORK YET ---------------------------------
     //ball and player 1
-    float x_distance_p1 = fabs(g_player_1_position.x + INIT_POS_PLAYER_1.x - INIT_POS_BALL.x) -
-        ((INIT_SCALE_BALL.x + INIT_SCALE_PLAYER_1.x) / 2.0f);
-    float y_distance_p1 = fabs(g_player_1_position.y + INIT_POS_PLAYER_1.y - INIT_POS_BALL.y) -
-        ((INIT_SCALE_BALL.y + INIT_SCALE_PLAYER_1.y) / 2.0f);
-   // std::cout<< "x:"<< x_distance_p1 <<"\n";
+    float x_distance_p1 = fabs(g_ball_position.x - (INIT_POS_PLAYER_1.x + g_player_1_position.x)) - ((INIT_SCALE_PLAYER_1.x + INIT_SCALE_BALL.x) / 2.0f);
+
+
+    float y_distance_p1 = fabs(g_ball_position.y - g_player_1_position.y) -
+                          ((INIT_SCALE_PLAYER_1.y + INIT_SCALE_BALL.y) / 2.0f);
     if (x_distance_p1 < 0.0f && y_distance_p1 < 0.0f)
     {
-        g_ball_velocity.x *= -1.0f; //bounce that carrot
+        g_ball_velocity.x *= -1.0f; //bounce
+        std::cout << "Collision with Player 1!" << std::endl;
     }
     
     //ball and player 2
-    // THE X POSITION IS NOT READING CORRECTLY IT JUST STAYS AT 3.5 BECAUSE THE PLAYER'S X DISTANCE IS NOT MOVING
-    float x_distance_p2 = fabs(g_player_2_position.x + INIT_POS_PLAYER_2.x - INIT_POS_BALL.x) -
-        ((INIT_SCALE_BALL.x + INIT_SCALE_PLAYER_2.x) / 2.0f);
-    float y_distance_p2 = fabs(g_player_2_position.y + INIT_POS_PLAYER_2.y - INIT_POS_BALL.y) -
-        ((INIT_SCALE_BALL.y + INIT_SCALE_PLAYER_2.y) / 2.0f);
-    std::cout<< "ball pose"<< g_ball_position.x <<"\n";
-    if (g_ball_position.x > 3.5f && y_distance_p2 < 0.0f)
+    float x_distance_p2 = fabs(g_ball_position.x - (INIT_POS_PLAYER_2.x + g_player_2_position.x)) - ((INIT_SCALE_PLAYER_2.x + INIT_SCALE_BALL.x) / 2.0f);
+
+
+    float y_distance_p2 = fabs(g_ball_position.y - g_player_2_position.y) -
+                          ((INIT_SCALE_PLAYER_2.y + INIT_SCALE_BALL.y) / 2.0f);
+
+    //collision check
+    if (x_distance_p2 < 0.0f && y_distance_p2 < 0.0f)
     {
-        std::cout<< "collisions"<< y_distance_p2 <<"\n";
-        //this portion is correct, but the collision detection is not
-        g_ball_velocity.x *= -1.0f; //carrot bounce off paddle
+        g_ball_velocity.x *= -1.0f;  //bounce
+        std::cout << "Collision with Player 2!" << std::endl;
     }
+
 }
 
 
