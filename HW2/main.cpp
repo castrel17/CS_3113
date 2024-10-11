@@ -55,6 +55,8 @@ bool game_over = false;
 bool player_2_auto_mode = false; //flag to track auto mode for player 2
 bool player_1_win = false;
 
+int num_balls = 1;
+
 /*sources: me lol */
 constexpr char PLAYER_1_SPRITE_FILEPATH[] = "ghost.png", //on the left
                PLAYER_2_SPRITE_FILEPATH[] = "ghost.png", //on the right
@@ -64,6 +66,12 @@ constexpr char PLAYER_1_SPRITE_FILEPATH[] = "ghost.png", //on the left
 constexpr float MINIMUM_COLLISION_DISTANCE = 1.0f;
 constexpr glm::vec3 INIT_SCALE_BALL = glm::vec3(0.5f, 0.5f, 0.5f),
                     INIT_POS_BALL   = glm::vec3(0.0f, 0.0f, 0.0f),
+                    //spawn these balls off the screen
+                    INIT_SCALE_BALL_2 = glm::vec3(0.5f, 0.5f, 0.5f),
+                    INIT_POS_BALL_2   = glm::vec3(7.0f, 0.0f, 0.0f),
+                    INIT_SCALE_BALL_3 = glm::vec3(-7.0f, 0.5f, 0.5f),
+                    INIT_POS_BALL_3  = glm::vec3(0.0f, 0.0f, 0.0f),
+
                     INIT_SCALE_PLAYER_1 = glm::vec3(1.5f, 1.5f, 1.0f),
                     INIT_POS_PLAYER_1  = glm::vec3(-4.5f, 0.0f, 0.0f),
                     INIT_SCALE_PLAYER_2 = glm::vec3(1.5f, 1.5f, 1.0f),
@@ -84,6 +92,15 @@ glm::vec3 g_player_2_movement = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_ball_position = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_ball_movement = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 g_ball_velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+//these balls spawned off screen
+glm::vec3 g_ball_2_position = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 g_ball_2_movement = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 g_ball_2_velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 g_ball_3_position = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 g_ball_3_movement = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 g_ball_3_velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
 float g_player_1_speed = 2.0f;
 float g_player_2_speed = 2.0f;
 float initial_speed = 2.0f;
@@ -233,6 +250,9 @@ void initialise()
     g_ball_velocity.x = initial_speed * cos(random_angle);
     g_ball_velocity.y = initial_speed * sin(random_angle);
     
+    
+    //set up the other two balls off the screen
+    
     g_view_matrix = glm::mat4(1.0f);
     g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
     
@@ -294,7 +314,6 @@ void process_input()
     }
     
     const Uint8 *key_state = SDL_GetKeyboardState(NULL);
-   // while(!game_over){ //only allow them to play the game when the game is not over
         //Player 1 controls, can only move up or down
         if (key_state[SDL_SCANCODE_W]) {
             g_player_1_movement.y = g_player_1_speed; //up
@@ -321,8 +340,16 @@ void process_input()
         if (glm::length(g_player_2_movement) > 1.0f) {
             g_player_2_movement = glm::normalize(g_player_2_movement);
         }
-    //}
     
+    
+        //bring the other two balls to screen when they press 1,2,3
+        if (key_state[SDL_SCANCODE_1]) {
+            num_balls = 1;
+        } else if (key_state[SDL_SCANCODE_2]) {
+            num_balls = 2;
+        } else if (key_state[SDL_SCANCODE_3]) {
+            num_balls = 3;
+        }
 }
 void reset_ball(float dir) //reset the ball to the center of the screen with random x and y velocity
 {//when player 1 scores then the ball heads towards player 2 and when player 2 scores the ball heads towards player one
@@ -462,15 +489,16 @@ void render() {
         glDisableVertexAttribArray(g_shader_program.get_position_attribute());
         glDisableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
         
-        SDL_GL_SwapWindow(g_display_window);
-        
     }else{
         if (player_1_win) {
-                    draw_text(&g_shader_program, g_font_texture_id, "Player 1 Wins!", 0.5f, 0.05f, glm::vec3(-1.5f, 0.0f, 0.0f));
+                    draw_text(&g_shader_program, g_font_texture_id, "Player 1 Wins!", 0.5f, 0.05f, glm::vec3(-3.5f, 2.0f, 0.0f));
                 } else {
-                    draw_text(&g_shader_program, g_font_texture_id, "Player 2 Wins!", 0.5f, 0.05f, glm::vec3(-1.5f, 0.0f, 0.0f));
+                    draw_text(&g_shader_program, g_font_texture_id, "Player 2 Wins!", 0.5f, 0.05f, glm::vec3(-3.5f, 2.0f, 0.0f));
                 }
     }
+    
+    //keep this outside the if so that it displays
+    SDL_GL_SwapWindow(g_display_window);
 }
 void shutdown() { SDL_Quit(); }
 int main(int argc, char* argv[])
