@@ -53,13 +53,15 @@ constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 //these values change so can't be constexpr
 bool game_over = false;
 bool player_2_auto_mode = false; //flag to track auto mode for player 2
-bool player_1_win = false;
 
 int num_balls = 1;
+int player_1_score = 0;
+int player_2_score = 0;
+int balls_left;
 
 /*sources: me lol */
-constexpr char PLAYER_1_SPRITE_FILEPATH[] = "ghost.png", //on the left
-               PLAYER_2_SPRITE_FILEPATH[] = "ghost.png", //on the right
+constexpr char PLAYER_1_SPRITE_FILEPATH[] = "p1.png", //on the left
+               PLAYER_2_SPRITE_FILEPATH[] = "p2.png", //on the right
                BALL_SPRITE_FILEPATH[]  = "pumpkin.png",
                FONTSHEET_FILEPATH[]   = "font.png";
 
@@ -68,19 +70,19 @@ constexpr glm::vec3 INIT_SCALE_BALL = glm::vec3(0.5f, 0.5f, 0.5f),
                     INIT_POS_BALL   = glm::vec3(0.0f, 0.0f, 0.0f),
                     //spawn these balls off the screen
                     INIT_SCALE_BALL_2 = glm::vec3(0.5f, 0.5f, 0.5f),
-                    INIT_POS_BALL_2   = glm::vec3(7.0f, 0.0f, 0.0f),
-                    INIT_SCALE_BALL_3 = glm::vec3(-7.0f, 0.5f, 0.5f),
+                    INIT_POS_BALL_2   = glm::vec3(0.0f, 0.0f, 0.0f),
+                    INIT_SCALE_BALL_3 = glm::vec3(0.0f, 0.5f, 0.5f),
                     INIT_POS_BALL_3  = glm::vec3(0.0f, 0.0f, 0.0f),
 
                     INIT_SCALE_PLAYER_1 = glm::vec3(1.5f, 1.5f, 1.0f),
-                    INIT_POS_PLAYER_1  = glm::vec3(-4.5f, 0.0f, 0.0f),
+                    INIT_POS_PLAYER_1  = glm::vec3(-4.0f, 0.0f, 0.0f),
                     INIT_SCALE_PLAYER_2 = glm::vec3(1.5f, 1.5f, 1.0f),
                     INIT_POS_PLAYER_2  = glm::vec3(4.5f, 0.0f, 0.0f);
                     
 SDL_Window* g_display_window;
 AppStatus g_app_status = RUNNING;
 ShaderProgram g_shader_program = ShaderProgram();
-glm::mat4 g_view_matrix, g_player_1_matrix, g_player_2_matrix, g_projection_matrix, g_ball_matrix;
+glm::mat4 g_view_matrix, g_player_1_matrix, g_player_2_matrix, g_projection_matrix, g_ball_matrix, g_ball_2_matrix, g_ball_3_matrix;
 float g_previous_ticks = 0.0f;
 GLuint g_player_1_texture_id;
 GLuint g_player_2_texture_id;
@@ -106,6 +108,10 @@ float g_player_2_speed = 2.0f;
 float initial_speed = 2.0f;
 float random_angle = glm::radians(static_cast<float>((rand() % 120) - 60));
 
+float get_random_angle(){
+    float random_angle = glm::radians(static_cast<float>((rand() % 120) - 60));
+    return random_angle;
+}
 
 void initialise();
 void process_input();
@@ -247,11 +253,24 @@ void initialise()
     g_ball_matrix = glm::translate(g_ball_matrix, glm::vec3(1.0f, 1.0f, 0.0f));
     g_ball_position += g_ball_movement;
     g_ball_position = glm::vec3(0.0f, 0.0f, 0.0f);
-    g_ball_velocity.x = initial_speed * cos(random_angle);
-    g_ball_velocity.y = initial_speed * sin(random_angle);
+    g_ball_velocity.x = initial_speed * cos(get_random_angle());
+    g_ball_velocity.y = initial_speed * sin(get_random_angle());
     
     
-    //set up the other two balls off the screen
+    //set up the other two balls but don't render
+    g_ball_2_matrix = glm::mat4(1.0f);
+    g_ball_2_matrix = glm::translate(g_ball_2_matrix, glm::vec3(1.0f, 1.0f, 0.0f));
+    g_ball_2_position += g_ball_2_movement;
+    g_ball_2_position = glm::vec3(0.0f, 1.0f, 0.0f);
+    g_ball_2_velocity.x = initial_speed * cos(get_random_angle());
+    g_ball_2_velocity.y = initial_speed * sin(get_random_angle());
+    
+    g_ball_3_matrix = glm::mat4(1.0f);
+    g_ball_3_matrix = glm::translate(g_ball_3_matrix, glm::vec3(1.0f, 1.0f, 0.0f));
+    g_ball_3_position += g_ball_3_movement;
+    g_ball_3_position = glm::vec3(0.0f, 0.0f, 0.0f);
+    g_ball_3_velocity.x = initial_speed * cos(get_random_angle());
+    g_ball_3_velocity.y = initial_speed * sin(get_random_angle());
     
     g_view_matrix = glm::mat4(1.0f);
     g_projection_matrix = glm::ortho(-5.0f, 5.0f, -3.75f, 3.75f, -1.0f, 1.0f);
@@ -275,6 +294,7 @@ void initialise()
     //set background color to black
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 }
+
 void process_input()
 {
     // VERY IMPORTANT: If nothing is pressed, we don't want to go anywhere
@@ -297,17 +317,25 @@ void process_input()
                         // Quit the game with a keystroke
                         g_app_status = TERMINATED;
                         break;
-                        
                     case SDLK_t:
                         // Toggle Player 2 auto mode
                         player_2_auto_mode = !player_2_auto_mode;
+                        break;
+                    case SDLK_1:
+                        num_balls = 1;
+                        break;
+                    case SDLK_2:
+                        num_balls = 2;
+                        break;
+                    case SDLK_3:
+                        num_balls = 3;
                         break;
                         
                     default:
                         break;
                 }
                 break;
-                
+
             default:
                 break;
         }
@@ -340,25 +368,6 @@ void process_input()
         if (glm::length(g_player_2_movement) > 1.0f) {
             g_player_2_movement = glm::normalize(g_player_2_movement);
         }
-    
-    
-        //bring the other two balls to screen when they press 1,2,3
-        if (key_state[SDL_SCANCODE_1]) {
-            num_balls = 1;
-        } else if (key_state[SDL_SCANCODE_2]) {
-            num_balls = 2;
-        } else if (key_state[SDL_SCANCODE_3]) {
-            num_balls = 3;
-        }
-}
-void reset_ball(float dir) //reset the ball to the center of the screen with random x and y velocity
-{//when player 1 scores then the ball heads towards player 2 and when player 2 scores the ball heads towards player one
-    float new_random_angle = glm::radians(static_cast<float>((rand() % 120) - 60));
-    g_ball_position = glm::vec3(0.0f, 0.0f, 0.0f);
-
-    g_ball_velocity.x = initial_speed * dir*cos(new_random_angle);
-    g_ball_velocity.y = initial_speed * dir*sin(new_random_angle);
-
 }
 
 void update()
@@ -391,12 +400,47 @@ void update()
         g_player_2_matrix = glm::scale(g_player_2_matrix, INIT_SCALE_PLAYER_2);
         
         // Update ball position based on its movement
-        g_ball_position += g_ball_velocity * delta_time;
         
-        g_ball_matrix = glm::mat4(1.0f);
-        g_ball_matrix = glm::translate(g_ball_matrix, INIT_POS_BALL);
-        g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
-        
+//        if(num_balls == 1){
+            g_ball_position += g_ball_velocity * delta_time;
+            
+            g_ball_matrix = glm::mat4(1.0f);
+            g_ball_matrix = glm::translate(g_ball_matrix, INIT_POS_BALL);
+            g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
+            
+//        }else if(num_balls == 2){
+//            g_ball_position += g_ball_velocity * delta_time;
+//
+//            g_ball_matrix = glm::mat4(1.0f);
+//            g_ball_matrix = glm::translate(g_ball_matrix, INIT_POS_BALL);
+//            g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
+//
+//            g_ball_2_position += g_ball_velocity * delta_time;
+//
+//            g_ball_2_matrix = glm::mat4(1.0f);
+//            g_ball_2_matrix = glm::translate(g_ball_2_matrix, INIT_POS_BALL_2);
+//            g_ball_2_matrix = glm::translate(g_ball_2_matrix, g_ball_2_position);
+//        }
+//        else{
+//            g_ball_position += g_ball_velocity * delta_time;
+//
+//            g_ball_matrix = glm::mat4(1.0f);
+//            g_ball_matrix = glm::translate(g_ball_matrix, INIT_POS_BALL);
+//            g_ball_matrix = glm::translate(g_ball_matrix, g_ball_position);
+//
+//            g_ball_2_position += g_ball_velocity * delta_time;
+//
+//            g_ball_2_matrix = glm::mat4(1.0f);
+//            g_ball_2_matrix = glm::translate(g_ball_matrix, INIT_POS_BALL);
+//            g_ball_2_matrix = glm::translate(g_ball_matrix, g_ball_position);
+//
+//            g_ball_3_position += g_ball_velocity * delta_time;
+//
+//            g_ball_3_matrix = glm::mat4(1.0f);
+//            g_ball_3_matrix = glm::translate(g_ball_matrix, INIT_POS_BALL);
+//            g_ball_3_matrix = glm::translate(g_ball_matrix, g_ball_position);
+//
+//        }
         //collisions
         //ball collision with top and bottom walls, ball bounces, make sure to correct position so it does not get stuck
         if (g_ball_position.y >= 3.4f) { //top
@@ -408,17 +452,19 @@ void update()
             g_ball_position.y = -3.4f + (INIT_SCALE_BALL.y / 2.0f);
         }
         
-        //ball collision with L and R walls, L = player_2 scores, R = player_1 scores, ball resets
-        if (g_ball_position.x >= 6.0f) { //player 1 scores
-            player_1_win = true;
-            std::cout << "Player 1 wins!" << std::endl;
-            game_over = true;
-            //reset_ball(1.0f); //ball heads towards player 2
-        }else if (g_ball_position.x <= -6.0f) { //player 2 scores
-            std::cout << "Player 2 wins!" << std::endl;
-            game_over = true;
-            //reset_ball(-1.0f); //ball heads towards player 1
+        //ball collision with L and R walls, L = player_2 scores, R = player_1 scores
+        if (g_ball_position.x >= 5.5f) { //player 1 scores
+            player_1_score++;
+            balls_left--;
+
+        }else if (g_ball_position.x <= -5.5f) { //player 2 scores
+            player_2_score++;
+            balls_left--;
         }
+        
+        //game is over when there are no more balls on the screen
+        if(num_balls == fabs(balls_left)){game_over = true;}
+
         
         //---------------------------------DOES NOT WORK YET ---------------------------------
         //ball and player 1
@@ -427,11 +473,10 @@ void update()
 
         float y_distance_p1 = fabs(g_ball_position.y - g_player_1_position.y) -
                               ((INIT_SCALE_PLAYER_1.y + INIT_SCALE_BALL.y) / 2.0f);
-        if (x_distance_p1 < 0.0f && y_distance_p1 < 0.0f)
+        if (x_distance_p1 < 0.0f && y_distance_p1 < 0.0f && g_ball_position.x >= -4.0f)
         {
             g_ball_velocity.x *= -1.0f; //bounce
-            std::cout << "Collision with Player 1!" << std::endl;
-            //g_ball_position.x = g_player_1_position.x + .15f;
+
         }
         
         //ball and player 2
@@ -440,13 +485,11 @@ void update()
 
         float y_distance_p2 = fabs(g_ball_position.y - g_player_2_position.y) -
                               ((INIT_SCALE_PLAYER_2.y + INIT_SCALE_BALL.y) / 2.0f);
-
-        //collision check
-        if (x_distance_p2 < 0.0f && y_distance_p2 < 0.0f)
+        
+        //NEED TO MAKE SURE THAT Y DIRECTION CHANGES WHEN THE BALL HITS THE TOP OF THE PADDLE
+        if (x_distance_p2 < 0.0f && y_distance_p2 < 0.0f && g_ball_position.x <= 4.0f)
         {
             g_ball_velocity.x *= -1.0f;  //bounce
-            std::cout << "Collision with Player 2!" << std::endl;
-            //g_ball_position.x = g_player_2_position.x -.15f;
         }
     }
 }
@@ -485,16 +528,31 @@ void render() {
         draw_object(g_player_2_matrix, g_player_2_texture_id);
         draw_object(g_ball_matrix, g_ball_texture_id);
         
+        if(num_balls == 1){
+            draw_object(g_ball_matrix, g_ball_texture_id);
+        }
+        else if(num_balls == 2){
+            draw_object(g_ball_matrix, g_ball_texture_id);
+            draw_object(g_ball_2_matrix, g_ball_texture_id);
+        }else if(num_balls == 3){
+            draw_object(g_ball_matrix, g_ball_texture_id);
+            draw_object(g_ball_2_matrix, g_ball_texture_id);
+            draw_object(g_ball_3_matrix, g_ball_texture_id);
+        }
+        
         // We disable two attribute arrays now
         glDisableVertexAttribArray(g_shader_program.get_position_attribute());
         glDisableVertexAttribArray(g_shader_program.get_tex_coordinate_attribute());
         
     }else{
-        if (player_1_win) {
-                    draw_text(&g_shader_program, g_font_texture_id, "Player 1 Wins!", 0.5f, 0.05f, glm::vec3(-3.5f, 2.0f, 0.0f));
-                } else {
-                    draw_text(&g_shader_program, g_font_texture_id, "Player 2 Wins!", 0.5f, 0.05f, glm::vec3(-3.5f, 2.0f, 0.0f));
-                }
+        if (player_1_score > player_2_score) {
+            draw_text(&g_shader_program, g_font_texture_id, "Player 1 Wins!", 0.5f, 0.05f, glm::vec3(-3.5f, 2.0f, 0.0f));
+        } else if(player_1_score < player_2_score) {
+            draw_text(&g_shader_program, g_font_texture_id, "Player 2 Wins!", 0.5f, 0.05f, glm::vec3(-3.5f, 2.0f, 0.0f));
+        }
+        else{
+            draw_text(&g_shader_program, g_font_texture_id, "TIE!", 0.5f, 0.05f, glm::vec3(-3.5f, 2.0f, 0.0f));
+        }
     }
     
     //keep this outside the if so that it displays
