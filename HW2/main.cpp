@@ -323,13 +323,16 @@ void update()
     }
     
     //ball and player 2
+    // THE X POSITION IS NOT READING CORRECTLY IT JUST STAYS AT 3.5 BECAUSE THE PLAYER'S X DISTANCE IS NOT MOVING
     float x_distance_p2 = fabs(g_player_2_position.x + INIT_POS_PLAYER_2.x - INIT_POS_BALL.x) -
         ((INIT_SCALE_BALL.x + INIT_SCALE_PLAYER_2.x) / 2.0f);
     float y_distance_p2 = fabs(g_player_2_position.y + INIT_POS_PLAYER_2.y - INIT_POS_BALL.y) -
         ((INIT_SCALE_BALL.y + INIT_SCALE_PLAYER_2.y) / 2.0f);
-    std::cout<< "x:"<< x_distance_p2 <<"\n";
-    if (x_distance_p2 < 0.0f && y_distance_p2 < 0.0f)
+    std::cout<< "ball pose"<< g_ball_position.x <<"\n";
+    if (g_ball_position.x > 3.5f && y_distance_p2 < 0.0f)
     {
+        std::cout<< "collisions"<< y_distance_p2 <<"\n";
+        //this portion is correct, but the collision detection is not
         g_ball_velocity.x *= -1.0f; //carrot bounce off paddle
     }
 }
