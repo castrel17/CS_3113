@@ -597,7 +597,7 @@ void update()
         
 
     }else{
-        // Update Player 1
+        //fancy end ghost spin and fly in circle
         g_ghost_position += 1.0f * delta_time;
         g_ghost_matrix = glm::mat4(1.0f);
         g_ghost_matrix = glm::translate(g_ghost_matrix, glm::vec3(2.0f * glm::cos(g_ghost_position.x), 2.0f * glm::sin(g_ghost_position.x), 0.0f));
