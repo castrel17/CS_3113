@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C0896542CC8598E00F4EEB8 /* pumpkin.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0C0896532CC858FB00F4EEB8 /* pumpkin.png */; };
 		0C3995F72CB9923600548A2F /* ghost.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0C3995F62CB9923100548A2F /* ghost.png */; };
-		0C3995F92CB993FA00548A2F /* pumpkin.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0C3995F82CB993F400548A2F /* pumpkin.png */; };
 		0C3995FB2CB9942000548A2F /* font.png in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0C3995FA2CB9941B00548A2F /* font.png */; };
 		842DC67A2CA645EF0052A9C3 /* starter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 842DC6782CA645EF0052A9C3 /* starter.cpp */; };
 		84651B1A2C17ED4900817E28 /* completed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84651B192C17ED4900817E28 /* completed.cpp */; };
@@ -30,8 +30,8 @@
 			dstSubfolderSpec = 6;
 			files = (
 				0C3995FB2CB9942000548A2F /* font.png in CopyFiles */,
-				0C3995F92CB993FA00548A2F /* pumpkin.png in CopyFiles */,
 				0C3995F72CB9923600548A2F /* ghost.png in CopyFiles */,
+				0C0896542CC8598E00F4EEB8 /* pumpkin.png in CopyFiles */,
 				DBDF1B612323DE9E007CECB1 /* shaders in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -39,8 +39,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0C0896532CC858FB00F4EEB8 /* pumpkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pumpkin.png; path = ../../../../../Downloads/HW4/SDLProject/pumpkin.png; sourceTree = "<group>"; };
 		0C3995F62CB9923100548A2F /* ghost.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ghost.png; sourceTree = "<group>"; };
-		0C3995F82CB993F400548A2F /* pumpkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = pumpkin.png; path = ../../pumpkin.png; sourceTree = "<group>"; };
 		0C3995FA2CB9941B00548A2F /* font.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font.png; sourceTree = "<group>"; };
 		842DC6782CA645EF0052A9C3 /* starter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = starter.cpp; sourceTree = "<group>"; };
 		84651B192C17ED4900817E28 /* completed.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = completed.cpp; sourceTree = "<group>"; };
@@ -111,7 +111,7 @@
 				DBDF1B5A2323DE8D007CECB1 /* stb_image.h */,
 				0C3995F62CB9923100548A2F /* ghost.png */,
 				0C3995FA2CB9941B00548A2F /* font.png */,
-				0C3995F82CB993F400548A2F /* pumpkin.png */,
+				0C0896532CC858FB00F4EEB8 /* pumpkin.png */,
 				DBDF1B522323DE3F007CECB1 /* main.cpp */,
 			);
 			path = SDLProject;
