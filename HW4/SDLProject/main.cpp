@@ -275,10 +275,10 @@ void initialise()
 
     int player_walking_animation[4][3] =
     {
-        {1, 3, 9},  //left
+        {1, 5, 9},  //left
         {3, 7,11}, //right
         {2, 6, 10}, //up
-        {0, 4, 8} ,//down
+        {0, 0, 0} ,//down
     };
 
     glm::vec3 acceleration = glm::vec3(0.0f,-4.905f, 0.0f);
@@ -290,7 +290,7 @@ void initialise()
         3.0f,                      // jumping power
         player_walking_animation,  // animation index sets
         0.0f,                      // animation time
-        4,                         // animation frame amount
+        3,                         // animation frame amount
         0,                         // current animation index
         4,                         // animation column amount
         3,                         // animation row amount
@@ -398,6 +398,7 @@ void process_input()
 
     if (key_state[SDL_SCANCODE_LEFT])       g_game_state.player->move_left();
     else if (key_state[SDL_SCANCODE_RIGHT]) g_game_state.player->move_right();
+    else g_game_state.player->move_down();
          
     if (glm::length(g_game_state.player->get_movement()) > 1.0f)
         g_game_state.player->normalise_movement();

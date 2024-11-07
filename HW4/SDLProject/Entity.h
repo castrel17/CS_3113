@@ -16,7 +16,7 @@ class Entity
 private:
     bool m_is_active = true;
     
-    int m_walking[4][3]; // 12x8 array for walking animations
+    int m_walking[4][3]; 
 
     
     EntityType m_entity_type;
