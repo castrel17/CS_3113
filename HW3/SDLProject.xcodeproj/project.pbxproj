@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0CBD9B252CD111B400D01093 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CCA057D2CCC09DD00865ACC /* SDL2_image.framework */; };
+		0CBD9B262CD111C500D01093 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CCA057F2CCC09ED00865ACC /* SDL2.framework */; };
+		0CBD9B272CD111D300D01093 /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CCA05812CCC09FC00865ACC /* SDL2_mixer.framework */; };
 		0CCA057C2CCC099D00865ACC /* assets in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0CCA057B2CCC097F00865ACC /* assets */; };
-		0CCA057E2CCC09DD00865ACC /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CCA057D2CCC09DD00865ACC /* SDL2_image.framework */; };
-		0CCA05802CCC09ED00865ACC /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CCA057F2CCC09ED00865ACC /* SDL2.framework */; };
-		0CCA05822CCC09FC00865ACC /* SDL2_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CCA05812CCC09FC00865ACC /* SDL2_mixer.framework */; };
 		0CFDBA342CC9BEBD00B3D332 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0CFDBA332CC9BEBD00B3D332 /* Entity.cpp */; };
 		842DC67A2CA645EF0052A9C3 /* starter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 842DC6782CA645EF0052A9C3 /* starter.cpp */; };
 		84651B1A2C17ED4900817E28 /* completed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84651B192C17ED4900817E28 /* completed.cpp */; };
@@ -60,9 +60,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0CCA05822CCC09FC00865ACC /* SDL2_mixer.framework in Frameworks */,
-				0CCA05802CCC09ED00865ACC /* SDL2.framework in Frameworks */,
-				0CCA057E2CCC09DD00865ACC /* SDL2_image.framework in Frameworks */,
+				0CBD9B272CD111D300D01093 /* SDL2_mixer.framework in Frameworks */,
+				0CBD9B262CD111C500D01093 /* SDL2.framework in Frameworks */,
+				0CBD9B252CD111B400D01093 /* SDL2_image.framework in Frameworks */,
 				DBDF1B652323DEDF007CECB1 /* Cocoa.framework in Frameworks */,
 				DBDF1B632323DEDA007CECB1 /* OpenGL.framework in Frameworks */,
 			);
@@ -313,8 +313,8 @@
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				HEADER_SEARCH_PATHS = (
-					/Library/Frameworks/SDL2_image.framework/Versions/A/Headers,
 					/Library/Frameworks/SDL2.framework/Versions/A/Headers,
+					/Library/Frameworks/SDL2_image.framework/Versions/A/Headers,
 					/Library/Frameworks/SDL2_mixer.framework/Versions/A/Headers,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
@@ -335,8 +335,8 @@
 					"$(LOCAL_LIBRARY_DIR)/Frameworks",
 				);
 				HEADER_SEARCH_PATHS = (
-					/Library/Frameworks/SDL2_image.framework/Versions/A/Headers,
 					/Library/Frameworks/SDL2.framework/Versions/A/Headers,
+					/Library/Frameworks/SDL2_image.framework/Versions/A/Headers,
 					/Library/Frameworks/SDL2_mixer.framework/Versions/A/Headers,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
