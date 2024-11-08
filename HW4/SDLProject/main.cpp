@@ -78,13 +78,10 @@ void draw_text(ShaderProgram *shader_program, GLuint font_texture_id, std::strin
  sources:
  player: https://axulart.itch.io/small-8-direction-characters
  platform: https://kenney.nl/assets/platformer-art-pixel-redux
- sounds:
  AI: https://kenney.nl/assets/platformer-art-pixel-redux
  */
-constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player copy.png",
+constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
            MAP_TILESET_FILEPATH[] = "assets/images/tilemap_packed.png",
-           BGM_FILEPATH[]         = "assets/audio/dooblydoo.mp3",
-           JUMP_SFX_FILEPATH[]    = "assets/audio/bounce.wav",
             AI1_FILEPATH[]       = "assets/images/AI1.png",
             AI2_FILEPATH[]         = "assets/images/AI2.png",
             AI3_FILEPATH[]         = "assets/images/AI3.png",
@@ -275,10 +272,10 @@ void initialise()
 
     int player_walking_animation[4][3] =
     {
-        {1, 5, 9},  //left
-        {3, 7,11}, //right
-        {2, 6, 10}, //up
-        {0, 0, 0} ,//down
+        {7, 15, 23},  //left
+        {2, 10, 18}, //right
+        {0, 8, 16}, //up
+        {20, 20, 20} ,//down
     };
 
     glm::vec3 acceleration = glm::vec3(0.0f,-4.905f, 0.0f);
@@ -292,13 +289,13 @@ void initialise()
         0.0f,                      // animation time
         3,                         // animation frame amount
         0,                         // current animation index
-        4,                         // animation column amount
+        8,                         // animation column amount
         3,                         // animation row amount
-        0.9f,                      // width
-        0.9f,                       // height
+        1.0f,                      // width
+        1.0f,                       // height
         PLAYER
     );
-    g_game_state.player->set_position(glm::vec3(0.0f, -1.0f, 0.0f));
+    g_game_state.player->set_position(glm::vec3(0.0f, 0.0f, 0.0f));
     // Jumping
     g_game_state.player->set_jumping_power(4.0f);
     g_game_state.player->set_entity_type(PLAYER);
@@ -314,7 +311,7 @@ void initialise()
     g_game_state.enemies[0].set_movement(glm::vec3(0.0f));
     g_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
     
-//    // ––––– AI2 (JUMPER) ––––– //
+    // ––––– AI2 (JUMPER) ––––– //
     GLuint ai2_texture_id = load_texture(AI2_FILEPATH);
     
     g_game_state.enemies[1] =  Entity(ai2_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, JUMPER, IDLE);
@@ -347,7 +344,6 @@ void initialise()
     // ––––– text ––––– //
     g_font_texture_id = load_texture(FONTSHEET_FILEPATH);
     
-    g_game_state.jump_sfx = Mix_LoadWAV(JUMP_SFX_FILEPATH);
     
     // ————— BLENDING ————— //
     glEnable(GL_BLEND);
@@ -386,8 +382,6 @@ void process_input()
                     default:
                         break;
                 }
-            case SDLK_RSHIFT: //this fires a bullet
-                break;
                 
             default:
                 break;
