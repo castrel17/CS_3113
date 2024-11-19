@@ -1,22 +1,28 @@
 #include "LevelC.h"
 #include "Utility.h"
 
-#define LEVEL_WIDTH 14
-#define LEVEL_HEIGHT 8
+#define LEVEL_WIDTH 20
+#define LEVEL_HEIGHT 14
 
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
-           ENEMY_FILEPATH[]       = "assets/images/AI1.png";
-
+                FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
+                BACKGROUND_FILEPATH[]         = "assets/images/bkgd.png",
+                ENEMY_FILEPATH[]       = "assets/images/AI1.png",
+                AMMO_FILEPATH[]         = "assets/images/fish.png";
 unsigned int LEVELC_DATA[] =
 {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2,
-    0, 0, 0, 3, 1, 4, 0, 0, 0, 4, 0, 0, 2, 2,
-    0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2,
-    3, 4, 0, 0, 0, 0, 0, 3, 4, 0, 1, 0, 2, 2,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
+    2, 2, 0, 0, 0, 3, 1, 4, 0, 0, 0, 4, 0, 0, 2, 2, 0, 0, 1, 0,
+    0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 4, 0, 0, 0, 0, 0, 3, 4, 0,
+    1, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 LevelC::~LevelC()
@@ -66,6 +72,7 @@ void LevelC::initialise()
     m_game_state.player->set_position(glm::vec3(1.0f, 0.0f, 0.0f));
     m_game_state.player->set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
     m_game_state.player->set_jumping_power(3.0f);
+    m_game_state.player->set_lives(m_game_state.lives);
     
     /**
     Enemies' stuff */
@@ -83,6 +90,15 @@ void LevelC::initialise()
     m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
     m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
     
+    m_game_state.enemies[0].set_position(glm::vec3(8.0f, 0.0f, 0.0f));
+    m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
+    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+    GLuint ammo_texture_id = Utility::load_texture(AMMO_FILEPATH);
+    m_game_state.ammo =  new Entity(ammo_texture_id, 1.0f, 1.0f, 1.0f, AMMO);
+    m_game_state.ammo->set_entity_type(AMMO);
+    m_game_state.ammo->set_position(glm::vec3(12.0f, -1.0f, 0.0f));
+    m_game_state.ammo->set_start_position(glm::vec3(12.0f, -1.0f, 0.0f));
+    m_game_state.ammo->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
     
     /**
      BGM and SFX
@@ -91,18 +107,23 @@ void LevelC::initialise()
     
     m_game_state.bgm = Mix_LoadMUS("assets/audio/bgm2.mp3");
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
-    Mix_VolumeMusic(10.0f);
+    Mix_VolumeMusic(20.0f);
     
     m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
 }
 
 void LevelC::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
+    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map, m_game_state.ammo);
+    m_game_state.lives = m_game_state.player->get_lives();
 }
 
 void LevelC::render(ShaderProgram *program)
 {
     m_game_state.map->render(program);
     m_game_state.player->render(program);
+    
+    int lives = m_game_state.player->get_lives();
+    glm::vec3 player_pos = m_game_state.player->get_position();
+    Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
 }

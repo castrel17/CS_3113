@@ -4,20 +4,22 @@
 #include "Map.h"
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
-enum EntityType { PLATFORM, PLAYER, ENEMY  };
-enum AIType     { WALKER, GUARD            };
-enum AIState    { WALKING, IDLE, ATTACKING };
+enum EntityType { PLATFORM, PLAYER, ENEMY, AMMO, LIVES  };
+enum AIType     { GUARD, JUMPER, SHOOTER}; //
+enum AIState    { WALKING, IDLE, ATTACKING, JUMPING};
+enum Lives{THREE, TWO, ONE, ZERO};
 
 
-enum AnimationDirection { LEFT, RIGHT, UP, DOWN };
-
+enum AnimationDirection { LEFT, RIGHT, UP, DOWN};
+enum EnemyAnimationDirection {AIR, GROUND};
 class Entity
 {
 private:
     bool m_is_active = true;
     
-    int m_walking[4][3]; // 4x3 array for walking animations
+    int m_walking[4][3];
 
+    int m_jumping_animation[2][1];
     
     EntityType m_entity_type;
     AIType     m_ai_type;
@@ -28,6 +30,7 @@ private:
     glm::vec3 m_scale;
     glm::vec3 m_velocity;
     glm::vec3 m_acceleration;
+    glm::vec3 m_start_pos;
 
     glm::mat4 m_model_matrix;
 
@@ -55,7 +58,17 @@ private:
     bool m_collided_bottom = false;
     bool m_collided_left   = false;
     bool m_collided_right  = false;
-
+    bool is_about_to_fall_left = false;
+    bool is_about_to_fall_right = false;
+    int stomp_count = 0;
+    bool game_over = false;
+    bool player_wins = false;
+    bool m_on_screen = true;
+    int m_lives = 3;
+    
+    bool m_invincible = false;
+    float m_invincible_timer = 0.0f;
+    
 public:
     // ————— STATIC VARIABLES ————— //
     static constexpr int SECONDS_PER_FRAME = 4;
@@ -66,6 +79,8 @@ public:
         int animation_frames, int animation_index, int animation_cols,
            int animation_rows, float width, float height, EntityType EntityType);
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType); // Simpler constructor
+    Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, int animation_cols,
+           int animation_rows,int animation_frames, int animation_index );
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType, AIType AIType, AIState AIState); // AI constructor
     ~Entity();
 
@@ -79,12 +94,15 @@ public:
     void const check_collision_y(Map *map);
     void const check_collision_x(Map *map);
     
-    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map);
+    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *ammo);
     void render(ShaderProgram* program);
 
-    void ai_activate(Entity *player);
+    void ai_activate(Entity *player, float delta_time, Entity *ammo);
     void ai_walk();
+    void ai_jump(Entity *player, float delta_time);
+    void ai_shoot(Entity *player, Entity *ammo);
     void ai_guard(Entity *player);
+    void pit_detection(Map *map);
     
     void normalise_movement() { m_movement = glm::normalize(m_movement); }
 
@@ -104,8 +122,8 @@ public:
     EntityType const get_entity_type()    const { return m_entity_type;   };
     AIType     const get_ai_type()        const { return m_ai_type;       };
     AIState    const get_ai_state()       const { return m_ai_state;      };
-    float const get_jumping_power() const { return m_jumping_power; }
     glm::vec3 const get_position()     const { return m_position; }
+    glm::vec3 const get_start_position()     const { return m_start_pos; }
     glm::vec3 const get_velocity()     const { return m_velocity; }
     glm::vec3 const get_acceleration() const { return m_acceleration; }
     glm::vec3 const get_movement()     const { return m_movement; }
@@ -117,13 +135,22 @@ public:
     bool      const get_collided_right() const { return m_collided_right; }
     bool      const get_collided_left() const { return m_collided_left; }
     
+    bool      const get_state() const { return m_is_active; }
+    bool      const get_game_status() const { return game_over; }
+    bool      const get_stomp_count() const { return stomp_count; }
+    bool      const get_win_status() const { return player_wins; }
+    bool      const get_on_screen() const { return m_on_screen; }
+    int      const get_lives() const { return m_lives; }
+    
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };
+    
     // ————— SETTERS ————— //
     void const set_entity_type(EntityType new_entity_type)  { m_entity_type = new_entity_type;};
     void const set_ai_type(AIType new_ai_type){ m_ai_type = new_ai_type;};
     void const set_ai_state(AIState new_state){ m_ai_state = new_state;};
     void const set_position(glm::vec3 new_position) { m_position = new_position; }
+    void const set_start_position(glm::vec3 new_position) { m_start_pos = new_position; }
     void const set_velocity(glm::vec3 new_velocity) { m_velocity = new_velocity; }
     void const set_acceleration(glm::vec3 new_acceleration) { m_acceleration = new_acceleration; }
     void const set_movement(glm::vec3 new_movement) { m_movement = new_movement; }
@@ -138,7 +165,10 @@ public:
     void const set_jumping_power(float new_jumping_power) { m_jumping_power = new_jumping_power;}
     void const set_width(float new_width) {m_width = new_width; }
     void const set_height(float new_height) {m_height = new_height; }
-
+    void const inc_stomp_count() {stomp_count++; }
+    void const set_game_status(bool new_status) {game_over = new_status; }
+    void const set_lives(int new_lives){m_lives = new_lives;}
+    void dec_lives() {m_lives--;}
     // Setter for m_walking
     void set_walking(int walking[4][3])
     {
@@ -147,6 +177,14 @@ public:
             for (int j = 0; j < 3; ++j)
             {
                 m_walking[i][j] = walking[i][j];
+            }
+        }
+    }
+    
+    void set_jumping(int jumping[2][1]){
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 1; ++j) {
+                m_jumping_animation[i][j] = jumping[i][j];
             }
         }
     }

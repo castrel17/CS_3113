@@ -99,12 +99,12 @@ void Utility::render_background(GLuint texture_id, ShaderProgram *program) {
     program->set_model_matrix(model_matrix);
 
     std::vector<float> vertices = {
-        -1.333f, -1.0f, // Bottom-left
-         1.333f, -1.0f, // Bottom-right
-         1.333f,  1.0f, // Top-right
-        -1.333f, -1.0f, // Bottom-left
-         1.333f,  1.0f, // Top-right
-        -1.333f,  1.0f  // Top-left
+        -13.333f, -10.0f,
+         13.333f, -10.0f,
+         13.333f,  10.0f,
+        -13.333f, -10.0f,
+         13.333f,  10.0f,
+        -13.333f,  10.0f
     };
 
     std::vector<float> tex_coords = {

@@ -25,7 +25,8 @@ struct GameState
     Map *map;
     Entity *player;
     Entity *enemies;
-    
+    Entity *ammo;
+    //Entity *lives;
     // ————— AUDIO ————— //
     Mix_Music *bgm;
     Mix_Chunk *jump_sfx;
@@ -34,6 +35,7 @@ struct GameState
     
     // ————— POINTERS TO OTHER SCENES ————— //
     int next_scene_id;
+    int lives;
 };
 
 class Scene {
@@ -52,4 +54,7 @@ public:
     // ————— GETTERS ————— //
     GameState const get_state() const { return m_game_state;             }
     int const get_number_of_enemies() const { return m_number_of_enemies; }
+    
+    void set_num_lives(int new_lives) { m_game_state.lives = new_lives; }
+    int get_num_lives() const { return m_game_state.lives; }
 };

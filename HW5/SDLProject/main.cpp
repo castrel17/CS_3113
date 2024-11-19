@@ -12,7 +12,8 @@
  Sprites:
  Tiles
  Jumping Sound: https://freesound.org/people/el_boss/sounds/751698/
- Background music 1: Music by <a href="Music by <a href="https://pixabay.com/users/sekuora-40269569/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=240795">
+ Background music 1: "https://pixabay.com/users/sekuora-40269569/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=240795">
+ Lives: https://swooshwhoosh.itch.io/heartsui
  */
 #define GL_SILENCE_DEPRECATION
 #define GL_GLEXT_PROTOTYPES 1
@@ -62,7 +63,7 @@ constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
            F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
-
+int curr_lives = 3;
 enum AppStatus { RUNNING, TERMINATED };
 
 // ––––– GLOBAL VARIABLES ––––– //
@@ -96,9 +97,10 @@ void render();
 void shutdown();
 
 // ––––– GENERAL FUNCTIONS ––––– //
-void switch_to_scene(Scene *scene)
+void switch_to_scene(Scene *scene, int curr_lives)
 {
     g_current_scene = scene;
+    scene->set_num_lives(curr_lives);
     g_current_scene->initialise(); // DON'T FORGET THIS STEP!
 }
 
@@ -146,7 +148,7 @@ void initialise()
     g_menu = new Menu();
 
     // Start at maine menu
-    switch_to_scene(g_menu);
+    switch_to_scene(g_menu, 0);
     
     g_effects = new Effects(g_projection_matrix, g_view_matrix);
     g_effects->start(SHRINK, 2.0f);
@@ -184,7 +186,7 @@ void process_input()
                                                  break;
                     case SDLK_RETURN:// go to the next scene from the main menu
                         if(g_current_scene == g_menu){
-                            switch_to_scene(g_levels[0]);
+                            switch_to_scene(g_levels[0], 3);
                         }
                         break;
                         
@@ -243,11 +245,13 @@ void update()
     } else {
         g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5, 3.75, 0));
     }
+    curr_lives = g_current_scene->get_num_lives();
     
-    if (g_current_scene == g_levelA && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_levelB);
-    if (g_current_scene == g_levelB && g_current_scene->get_state().player->get_position().y < -10.0f && g_current_scene->get_state().player->get_position().x > 4.0f  ) switch_to_scene(g_levelC);
-   
-    g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
+    if (g_current_scene == g_levelA && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_levelB, curr_lives);
+    if (g_current_scene == g_levelB && g_current_scene->get_state().player->get_position().y < -10.0f && g_current_scene->get_state().player->get_position().x > 4.0f  ) switch_to_scene(g_levelC, curr_lives);
+
+    
+   // g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
 }
 
 void render()
@@ -259,7 +263,7 @@ void render()
     // ————— RENDERING THE SCENE (i.e. map, character, enemies...) ————— //
     g_current_scene->render(&g_shader_program);
        
-    g_effects->render();
+    //g_effects->render();
     
     SDL_GL_SwapWindow(g_display_window);
 }
@@ -284,7 +288,10 @@ int main(int argc, char* argv[])
         process_input();
         update();
         
-        if (g_current_scene->get_state().next_scene_id >= 0) switch_to_scene(g_levels[g_current_scene->get_state().next_scene_id]);
+        if (g_current_scene->get_state().next_scene_id >= 0){
+            curr_lives = g_current_scene->get_num_lives();
+            switch_to_scene(g_levels[g_current_scene->get_state().next_scene_id], curr_lives);
+        }
         
         render();
     }
