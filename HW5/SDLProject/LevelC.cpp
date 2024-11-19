@@ -6,23 +6,20 @@
 
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
-                BACKGROUND_FILEPATH[]         = "assets/images/bkgd.png",
-                ENEMY_FILEPATH[]       = "assets/images/AI1.png",
-                AMMO_FILEPATH[]         = "assets/images/fish.png";
+                ENEMY_FILEPATH[]       = "assets/images/jumping_ai.png",
+                AMMO_FILEPATH[]         = "assets/images/fish.png",
+                ENEMY_GUARD_FILEPATH[]       = "assets/images/onion.png";
+
 unsigned int LEVELC_DATA[] =
 {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
-    2, 2, 0, 0, 0, 3, 1, 4, 0, 0, 0, 4, 0, 0, 2, 2, 0, 0, 1, 0,
-    0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 3, 4, 0, 0, 0, 0, 0, 3, 4, 0,
-    1, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 5,
+    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    5, 0, 0, 0, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    5, 0, 2, 0, 2, 2, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    5, 2, 2, 0, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    5, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3,
 };
 
 LevelC::~LevelC()
@@ -38,7 +35,7 @@ void LevelC::initialise()
 {
     m_game_state.next_scene_id = -1;
     
-    GLuint map_texture_id = Utility::load_texture("assets/images/tilemap_packed.png");
+    GLuint map_texture_id = Utility::load_texture("assets/images/grocery_tiles.png");
     m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVELC_DATA, map_texture_id, 1.0f, 5, 1);
     
     int player_walking_animation[4][3] =
@@ -74,25 +71,48 @@ void LevelC::initialise()
     m_game_state.player->set_jumping_power(3.0f);
     m_game_state.player->set_lives(m_game_state.lives);
     
-    /**
-    Enemies' stuff */
+    /**Enemies' stuff */
+    int enemy_jumping_animation[2][1] =
+    {
+        {0},  //in air
+        {1}, //on ground
+    };
     GLuint enemy_texture_id = Utility::load_texture(ENEMY_FILEPATH);
 
+    //jumping enemies
     m_game_state.enemies = new Entity[ENEMY_COUNT];
-
-    for (int i = 0; i < ENEMY_COUNT; i++)
-    {
-    m_game_state.enemies[i] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+    for(int i = 0; i < ENEMY_COUNT-1; i++){
+        m_game_state.enemies[i] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, JUMPER, JUMPING);
+        m_game_state.enemies[i].set_entity_type(ENEMY);
+        m_game_state.enemies[i].set_ai_type(JUMPER);
+        m_game_state.enemies[i].set_jumping_power(4.0f);
+        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
+        m_game_state.enemies[i].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+        //animating enemy
+        m_game_state.enemies[i].set_animation_time(0.0f);
+        m_game_state.enemies[i].set_animation_cols(2);
+        m_game_state.enemies[i].set_animation_rows(1);
+        m_game_state.enemies[i].set_animation_index(0);
+        m_game_state.enemies[i].set_animation_frames(2);
+        m_game_state.enemies[i].set_jumping(enemy_jumping_animation);
+        m_game_state.enemies[i].set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
     }
-
-
-    m_game_state.enemies[0].set_position(glm::vec3(8.0f, 0.0f, 0.0f));
-    m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
     
-    m_game_state.enemies[0].set_position(glm::vec3(8.0f, 0.0f, 0.0f));
-    m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+    
+    m_game_state.enemies[0].set_position(glm::vec3(8.5f, -2.0f, 0.0f));
+    m_game_state.enemies[1].set_position(glm::vec3(16.5f, -2.0f, 0.0f));
+    
+    
+    //guard enemies
+    GLuint enemy_guard_texture_id = Utility::load_texture(ENEMY_GUARD_FILEPATH);
+    m_game_state.enemies[2] =  Entity(enemy_guard_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+    m_game_state.enemies[2].set_entity_type(ENEMY);
+    m_game_state.enemies[2].set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
+    m_game_state.enemies[2].set_movement(glm::vec3(0.0f));
+    m_game_state.enemies[2].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+    m_game_state.enemies[2].set_position(glm::vec3(12.5f, 0.0f, 0.0f));//spawn on platform
+    
+    
     GLuint ammo_texture_id = Utility::load_texture(AMMO_FILEPATH);
     m_game_state.ammo =  new Entity(ammo_texture_id, 1.0f, 1.0f, 1.0f, AMMO);
     m_game_state.ammo->set_entity_type(AMMO);
@@ -116,14 +136,32 @@ void LevelC::update(float delta_time)
 {
     m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map, m_game_state.ammo);
     m_game_state.lives = m_game_state.player->get_lives();
+    
+    for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
+                                                                         m_game_state.map, m_game_state.ammo);
+    
+    glm::vec3 player_pos = m_game_state.player->get_position();
+    if(player_pos.x == 18.0f && player_pos.y == -6.0f && m_game_state.lives > 0){
+        m_game_state.player->set_game_status(true);
+        m_game_state.player->set_win_status(true);
+    }
 }
 
 void LevelC::render(ShaderProgram *program)
 {
     m_game_state.map->render(program);
     m_game_state.player->render(program);
-    
+    for (int i = 0; i < ENEMY_COUNT; i++)    m_game_state.enemies[i].render(program);
+    //player wins the game when they get to the end of level C, so X = 18.0f and y = -6.0f
     int lives = m_game_state.player->get_lives();
     glm::vec3 player_pos = m_game_state.player->get_position();
-    Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
+    if(m_game_state.player->get_game_status()){ //true = over
+        if(m_game_state.player->get_win_status()){
+            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Win", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +2.0f, 0.0f));
+        }else{
+            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +2.0f, 0.0f));
+        }
+    }else{
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
+    }
 }

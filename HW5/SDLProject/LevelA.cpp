@@ -11,14 +11,14 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
             AMMO_FILEPATH[]         = "assets/images/fish.png";
 
 unsigned int LEVELA_DATA[] = {
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 0, 0, 0, 1, 0,
-    2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 0, 0, 0, 3, 2, 0,
-    2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 2, 2, 0, 0, 1, 0, 2, 0,
-    2, 0, 0, 1, 2, 0, 3, 1, 4, 0, 2, 0, 2, 2, 0, 1, 2, 0, 2, 0,
-    2, 1, 1, 2, 2, 1, 2, 2, 2, 1, 2, 1, 2, 2, 1, 2, 2, 1, 2, 0,
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 5, 0,
+    5, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 1, 1, 0, 0, 0, 2, 5, 0,
+    5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 2, 2, 5, 0,
+    5, 0, 0, 2, 1, 0, 2, 2, 2, 0, 1, 0, 1, 1, 0, 2, 2, 2, 5, 0,
+    5, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 0,
+    5, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 0,
 };
 
 LevelA::~LevelA()
@@ -34,7 +34,7 @@ void LevelA::initialise()
 {
     m_game_state.next_scene_id = -1;
     
-    GLuint map_texture_id = Utility::load_texture("assets/images/tilemap_packed.png");
+    GLuint map_texture_id = Utility::load_texture("assets/images/grocery_tiles.png");
     m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVELA_DATA, map_texture_id, 1.0f, 5, 1);
     
     int player_walking_animation[4][3] =
@@ -129,7 +129,7 @@ void LevelA::render(ShaderProgram *program)
     glm::vec3 player_pos = m_game_state.player->get_position();
     
     if(m_game_state.player->get_game_status()){ //true = over
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Game Over", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +2.0f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +2.0f, 0.0f)); //lives above the players head
     }else{
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
     }

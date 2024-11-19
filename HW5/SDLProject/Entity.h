@@ -167,6 +167,7 @@ public:
     void const set_height(float new_height) {m_height = new_height; }
     void const inc_stomp_count() {stomp_count++; }
     void const set_game_status(bool new_status) {game_over = new_status; }
+    void const set_win_status(bool new_status) {player_wins = new_status; }
     void const set_lives(int new_lives){m_lives = new_lives;}
     void dec_lives() {m_lives--;}
     // Setter for m_walking

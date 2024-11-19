@@ -6,7 +6,7 @@
 
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
-                BACKGROUND_FILEPATH[]         = "assets/images/bkgd.png",
+                BACKGROUND_FILEPATH[]         = "assets/images/grocery_bkgd.png",
                 ENEMY_FILEPATH[]       = "assets/images/AI1.png",
                 AMMO_FILEPATH[]         = "assets/images/fish.png";
 
@@ -15,6 +15,9 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
  Background: https://grafxkid.itch.io/seasonal-tilesets
  
  */
+
+GLuint g_bkgd_texture_id;
+glm::mat4 g_bkgd_matrix;
 
 unsigned int MENU_DATA[] =
 {
@@ -100,6 +103,11 @@ void Menu::initialise()
     Mix_VolumeMusic(20.0f);
     
     m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    
+    g_bkgd_texture_id = Utility::load_texture(BACKGROUND_FILEPATH);
+    g_bkgd_matrix = glm::mat4(1.0f);
+    g_bkgd_matrix  = glm::translate(g_bkgd_matrix, glm::vec3(0.0f, 0.0f, 0.0f));
+    g_bkgd_matrix  = glm::scale(g_bkgd_matrix, glm::vec3(60.5f, 12.5f, 1.0f));  
 }
 
 void Menu::update(float delta_time)
@@ -111,10 +119,12 @@ void Menu::update(float delta_time)
 
 void Menu::render(ShaderProgram *program)
 {
-    GLuint g_bkgd = Utility::load_texture(BACKGROUND_FILEPATH);
-    Utility::render_background(g_bkgd, program);
     Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Welcome!", 0.5f, 0.005f, glm::vec3(3.0f, -2.0f, 0.0f));
     Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Press enter to start", 0.5f, 0.005f, glm::vec3(0.25f, -2.5f, 0.0f));
     m_game_state.map->render(program);
     m_game_state.player->render(program);
+    
+    program->set_model_matrix(g_bkgd_matrix);
+    glBindTexture(GL_TEXTURE_2D, g_bkgd_texture_id);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }

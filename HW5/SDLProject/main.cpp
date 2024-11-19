@@ -10,9 +10,8 @@
 
 /**Sources:
  Sprites:
- Tiles
  Jumping Sound: https://freesound.org/people/el_boss/sounds/751698/
- Background music 1: "https://pixabay.com/users/sekuora-40269569/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=240795">
+ Background music 1: https://pixabay.com/users/sekuora-40269569/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=240795">
  Lives: https://swooshwhoosh.itch.io/heartsui
  */
 #define GL_SILENCE_DEPRECATION
@@ -46,12 +45,12 @@
 #include "LevelC.h"
 
 // ––––– CONSTANTS ––––– //
-constexpr int WINDOW_WIDTH  = 640,
-          WINDOW_HEIGHT = 480;
+constexpr int WINDOW_WIDTH  = 640*2,
+WINDOW_HEIGHT = 480*2;
 
-constexpr float BG_RED     = 0.1922f,
-            BG_BLUE    = 0.549f,
-            BG_GREEN   = 0.9059f,
+constexpr float BG_RED     = 0.705f,
+            BG_BLUE    = 0.705f,
+            BG_GREEN   = 0.705f,
             BG_OPACITY = 1.0f;
 
 constexpr int VIEWPORT_X = 0,
@@ -107,7 +106,7 @@ void switch_to_scene(Scene *scene, int curr_lives)
 void initialise()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    g_display_window = SDL_CreateWindow("Platformer Game!",
+    g_display_window = SDL_CreateWindow("Escape the Grocery Store",
                                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                       WINDOW_WIDTH, WINDOW_HEIGHT,
                                       SDL_WINDOW_OPENGL);
