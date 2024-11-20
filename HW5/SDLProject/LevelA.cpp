@@ -5,7 +5,7 @@
 #define LEVEL_HEIGHT 8
 
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
-           AI1_FILEPATH[]       = "assets/images/AI1.png",
+           AI1_FILEPATH[]       = "assets/images/onion.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
             LIVES_FILEPATH[]         = "assets/images/lives.png",
             AMMO_FILEPATH[]         = "assets/images/fish.png";
