@@ -114,6 +114,11 @@ void initialise()
     SDL_GLContext context = SDL_GL_CreateContext(g_display_window);
     SDL_GL_MakeCurrent(g_display_window, context);
     
+    if (context == nullptr)
+    {
+        shutdown();
+    }
+    
 #ifdef _WINDOWS
     glewInit();
 #endif
@@ -270,7 +275,6 @@ void render()
 void shutdown()
 {
     SDL_Quit();
-    
     delete g_levelA;
     delete g_levelB;
     delete g_effects;
