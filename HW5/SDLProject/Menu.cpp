@@ -33,11 +33,11 @@ unsigned int MENU_DATA[] =
 
 Menu::~Menu()
 {
+    Mix_FreeMusic(m_game_state.bgm);
+    Mix_FreeChunk(m_game_state.jump_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
-    Mix_FreeChunk(m_game_state.jump_sfx);
-    Mix_FreeMusic(m_game_state.bgm);
 }
 
 void Menu::initialise()

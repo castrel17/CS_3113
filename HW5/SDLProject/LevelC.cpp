@@ -17,18 +17,19 @@ unsigned int LEVELC_DATA[] =
     5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 5,
     5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
     5, 0, 0, 0, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
-    5, 0, 2, 0, 2, 2, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    5, 2, 2, 0, 2, 2, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
     5, 2, 2, 0, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
     5, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3,
 };
 
 LevelC::~LevelC()
 {
+    Mix_FreeMusic(m_game_state.bgm);
+    Mix_FreeChunk(m_game_state.jump_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
-    Mix_FreeChunk(m_game_state.jump_sfx);
-    Mix_FreeMusic(m_game_state.bgm);
+    delete    m_game_state.ammo;
 }
 
 void LevelC::initialise()
@@ -120,16 +121,15 @@ void LevelC::initialise()
     m_game_state.ammo->set_start_position(glm::vec3(12.0f, -1.0f, 0.0f));
     m_game_state.ammo->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
     
-    /**
-     BGM and SFX
-     */
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
     
-    m_game_state.bgm = Mix_LoadMUS("assets/audio/bgm2.mp3");
+    m_game_state.bgm = Mix_LoadMUS("assets/audio/bgm.mp3");
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
     m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
+    m_game_state.win_sfx= Mix_LoadWAV("assets/audio/win.wav");
 }
 
 void LevelC::update(float delta_time)
@@ -144,6 +144,16 @@ void LevelC::update(float delta_time)
     if(player_pos.x == 18.0f && player_pos.y == -6.0f && m_game_state.lives > 0){
         m_game_state.player->set_game_status(true);
         m_game_state.player->set_win_status(true);
+    }
+    
+    if (m_game_state.player->get_game_status() && !m_game_state.sound_played) {
+        if(m_game_state.player->get_win_status()){
+            Mix_PlayChannel(-1, m_game_state.win_sfx, 0);
+            m_game_state.sound_played = true;
+        }else{
+            Mix_PlayChannel(-1, m_game_state.lose_sfx, 0);
+            m_game_state.sound_played = true;
+        }
     }
 }
 

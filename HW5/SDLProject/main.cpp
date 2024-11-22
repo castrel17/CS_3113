@@ -7,12 +7,14 @@
 * NYU School of Engineering Policies and Procedures on
 * Academic Misconduct.
 **/
-
-/**Sources:
- Sprites:
- Jumping Sound: https://freesound.org/people/el_boss/sounds/751698/
- Background music 1: https://pixabay.com/users/sekuora-40269569/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=240795">
- Lives: https://swooshwhoosh.itch.io/heartsui
+/**
+ BGM and SFX
+ BGM1:https://pixabay.com/users/sunnyvibesaudio-42625630/
+ BGM2: https://pixabay.com/users/sekuora-40269569/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=240795
+ BGM3: https://pixabay.com/music/search/cute%20viedogame/?genre=video%2520games
+ Win: https://freesound.org/people/Fupicat/sounds/521639/
+ Lose: https://freesound.org/people/Fupicat/sounds/538151/
+ Jump: https://freesound.org/people/el_boss/sounds/751698/
  */
 #define GL_SILENCE_DEPRECATION
 #define GL_GLEXT_PROTOTYPES 1
@@ -84,7 +86,9 @@ glm::mat4 g_view_matrix, g_projection_matrix;
 float g_previous_ticks = 0.0f;
 float g_accumulator = 0.0f;
 
-bool g_is_colliding_bottom = false;
+int g_old_stomp_count = 0;
+int g_new_stomp_count = 0;
+float g_shake_timer = 0.0f;
 
 AppStatus g_app_status = RUNNING;
 
@@ -155,7 +159,6 @@ void initialise()
     switch_to_scene(g_menu, 0);
     
     g_effects = new Effects(g_projection_matrix, g_view_matrix);
-    g_effects->start(SHRINK, 2.0f);
 }
 
 void process_input()
@@ -227,15 +230,27 @@ void update()
         g_accumulator = delta_time;
         return;
     }
-    
+
     while (delta_time >= FIXED_TIMESTEP) {
         g_current_scene->update(FIXED_TIMESTEP);
         g_effects->update(FIXED_TIMESTEP);
-        
-        if (g_is_colliding_bottom == false && g_current_scene->get_state().player->get_collided_bottom()) //g_effects->start(SHAKE, 1.0f);
-        
-        g_is_colliding_bottom = g_current_scene->get_state().player->get_collided_bottom();
-        
+
+        g_new_stomp_count = g_current_scene->get_state().player->get_stomp_count();
+
+        if (g_old_stomp_count < g_new_stomp_count) {
+            // A new stomp occurred, start the shake effect
+            g_effects->start(SHAKE, 1.0f);
+            g_shake_timer = 1.0f; // Set the shake timer to 1.0 seconds
+        }
+
+        // Decrease shake timer if active
+        if (g_shake_timer > 0) {
+            g_shake_timer -= FIXED_TIMESTEP; // Reduce timer by fixed timestep
+        } else {
+            g_effects->start(NONE); // Stop the shake effect when the timer ends
+        }
+
+        g_old_stomp_count = g_new_stomp_count; // Update stomp count for the next iteration
         delta_time -= FIXED_TIMESTEP;
     }
     
@@ -255,7 +270,7 @@ void update()
     if (g_current_scene == g_levelB && g_current_scene->get_state().player->get_position().y < -10.0f && g_current_scene->get_state().player->get_position().x > 4.0f  ) switch_to_scene(g_levelC, curr_lives);
 
     
-   // g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
+    g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
 }
 
 void render()
@@ -267,7 +282,7 @@ void render()
     // ————— RENDERING THE SCENE (i.e. map, character, enemies...) ————— //
     g_current_scene->render(&g_shader_program);
        
-    //g_effects->render();
+    g_effects->render();
     
     SDL_GL_SwapWindow(g_display_window);
 }
@@ -277,6 +292,7 @@ void shutdown()
     SDL_Quit();
     delete g_levelA;
     delete g_levelB;
+    delete g_levelC;
     delete g_effects;
     delete g_menu;
 }

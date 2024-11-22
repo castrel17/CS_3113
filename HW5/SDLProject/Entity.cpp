@@ -544,6 +544,10 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
                 game_over = true;
                 deactivate();
             }
+            if(get_win_status()){
+                game_over = true;
+                deactivate();
+            }
         }
     
         m_model_matrix = glm::mat4(1.0f);

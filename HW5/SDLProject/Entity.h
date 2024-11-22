@@ -60,7 +60,7 @@ private:
     bool m_collided_right  = false;
     bool is_about_to_fall_left = false;
     bool is_about_to_fall_right = false;
-    int stomp_count = 0;
+    int m_stomp_count = 0;
     bool game_over = false;
     bool player_wins = false;
     bool m_on_screen = true;
@@ -137,7 +137,7 @@ public:
     
     bool      const get_state() const { return m_is_active; }
     bool      const get_game_status() const { return game_over; }
-    bool      const get_stomp_count() const { return stomp_count; }
+    bool      const get_stomp_count() const { return m_stomp_count; }
     bool      const get_win_status() const { return player_wins; }
     bool      const get_on_screen() const { return m_on_screen; }
     int      const get_lives() const { return m_lives; }
@@ -165,7 +165,7 @@ public:
     void const set_jumping_power(float new_jumping_power) { m_jumping_power = new_jumping_power;}
     void const set_width(float new_width) {m_width = new_width; }
     void const set_height(float new_height) {m_height = new_height; }
-    void const inc_stomp_count() {stomp_count++; }
+    void const inc_stomp_count() {m_stomp_count++; }
     void const set_game_status(bool new_status) {game_over = new_status; }
     void const set_win_status(bool new_status) {player_wins = new_status; }
     void const set_lives(int new_lives){m_lives = new_lives;}

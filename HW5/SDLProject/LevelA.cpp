@@ -23,11 +23,12 @@ unsigned int LEVELA_DATA[] = {
 
 LevelA::~LevelA()
 {
+    Mix_FreeMusic(m_game_state.bgm);
+    Mix_FreeChunk(m_game_state.jump_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
-    Mix_FreeChunk(m_game_state.jump_sfx);
-    Mix_FreeMusic(m_game_state.bgm);
+    delete    m_game_state.ammo;
 }
 
 void LevelA::initialise()
@@ -90,10 +91,7 @@ void LevelA::initialise()
     m_game_state.ammo->set_start_position(glm::vec3(12.0f, -1.0f, 0.0f));
     m_game_state.ammo->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
     
-    // ––––– LIVES ––––– //
-//    GLuint lives_texture_id = Utility::load_texture(LIVES_FILEPATH);
-//    m_game_state.lives =  new Entity(lives_texture_id, 0.0f, 1.0f, 1.0f, LIVES, 1,
-//                                           1,3, 0);
+    // ––––– LIVES ––––– //                      1,3, 0);
     m_game_state.ammo->set_position(glm::vec3(5.0f, 1.0f, 0.0f));
     
     /**
@@ -106,6 +104,7 @@ void LevelA::initialise()
     Mix_VolumeMusic(20.0f);
     
     m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
 }
 
 void LevelA::update(float delta_time)
@@ -117,6 +116,11 @@ void LevelA::update(float delta_time)
     m_game_state.lives = m_game_state.player->get_lives();
     if (m_game_state.player->get_position().y < -10.0f) {
         m_game_state.next_scene_id = 1;
+    }
+    
+    if (m_game_state.player->get_game_status() && !m_game_state.sound_played) {
+        Mix_PlayChannel(-1, m_game_state.lose_sfx, 0);
+        m_game_state.sound_played = true;
     }
 }
 

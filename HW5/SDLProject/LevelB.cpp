@@ -4,6 +4,9 @@
 #define LEVEL_WIDTH 20
 #define LEVEL_HEIGHT 8
 
+/**
+ BGM: https://pixabay.com/music/search/cute%20viedogame/?genre=video%2520games
+ */
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
                 ENEMY_FILEPATH[]       = "assets/images/jumping_ai.png",
@@ -23,11 +26,12 @@ unsigned int LEVELB_DATA[] =
 
 LevelB::~LevelB()
 {
+    Mix_FreeMusic(m_game_state.bgm);
+    Mix_FreeChunk(m_game_state.jump_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
-    Mix_FreeChunk(m_game_state.jump_sfx);
-    Mix_FreeMusic(m_game_state.bgm);
+    delete    m_game_state.ammo;
 }
 
 void LevelB::initialise()
@@ -115,11 +119,12 @@ void LevelB::initialise()
      */
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
     
-    m_game_state.bgm = Mix_LoadMUS("assets/audio/bgm2.mp3");
+    m_game_state.bgm = Mix_LoadMUS("assets/audio/bgm3.mp3");
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
     m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
 }
 
 void LevelB::update(float delta_time)
@@ -131,6 +136,11 @@ void LevelB::update(float delta_time)
     m_game_state.lives = m_game_state.player->get_lives();
     if (m_game_state.player->get_position().y < -10.0f) {
         m_game_state.next_scene_id = 1;
+    }
+    
+    if (m_game_state.player->get_game_status() && !m_game_state.sound_played) {
+        Mix_PlayChannel(-1, m_game_state.lose_sfx, 0);
+        m_game_state.sound_played = true;
     }
 }
 
