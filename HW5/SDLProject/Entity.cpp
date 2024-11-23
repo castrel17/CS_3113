@@ -33,6 +33,7 @@ void Entity::ai_activate(Entity *player,float delta_time)
         case JUMPER:
             ai_jump(player, delta_time);
             break;
+        
         default:
             break;
     }
@@ -427,6 +428,7 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
         
         
         if (m_entity_type == ENEMY) {
+            ai_activate(player, delta_time);
             if(m_ai_type == GUARD){
                 pit_detection(map);
             }

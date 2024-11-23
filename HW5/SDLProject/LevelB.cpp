@@ -100,7 +100,7 @@ void LevelB::initialise()
         m_game_state.enemies[i].set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
     }
     
-    
+    //the enemies all have different positions
     m_game_state.enemies[0].set_position(glm::vec3(5.5f, -2.0f, 0.0f));
     m_game_state.enemies[1].set_position(glm::vec3(11.5f, -2.0f, 0.0f));
     m_game_state.enemies[2].set_position(glm::vec3(16.5f, -2.0f, 0.0f));
