@@ -113,14 +113,6 @@ void LevelC::initialise()
     m_game_state.enemies[2].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
     m_game_state.enemies[2].set_position(glm::vec3(12.5f, 0.0f, 0.0f));//spawn on platform
     
-    
-    GLuint ammo_texture_id = Utility::load_texture(AMMO_FILEPATH);
-    m_game_state.ammo =  new Entity(ammo_texture_id, 1.0f, 1.0f, 1.0f, AMMO);
-    m_game_state.ammo->set_entity_type(AMMO);
-    m_game_state.ammo->set_position(glm::vec3(12.0f, -1.0f, 0.0f));
-    m_game_state.ammo->set_start_position(glm::vec3(12.0f, -1.0f, 0.0f));
-    m_game_state.ammo->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
-    
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
     
     m_game_state.bgm = Mix_LoadMUS("assets/audio/bgm.mp3");
@@ -134,11 +126,11 @@ void LevelC::initialise()
 
 void LevelC::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map, m_game_state.ammo);
+    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
     m_game_state.lives = m_game_state.player->get_lives();
     
     for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
-                                                                         m_game_state.map, m_game_state.ammo);
+                                                                         m_game_state.map);
     
     glm::vec3 player_pos = m_game_state.player->get_position();
     if(player_pos.x == 18.0f && player_pos.y == -6.0f && m_game_state.lives > 0){

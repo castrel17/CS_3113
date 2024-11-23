@@ -82,18 +82,6 @@ void LevelA::initialise()
     m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platform
     m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
     
-    
-    // ––––– AMMO ––––– //
-    GLuint ammo_texture_id = Utility::load_texture(AMMO_FILEPATH);
-    m_game_state.ammo =  new Entity(ammo_texture_id, 1.0f, 1.0f, 1.0f, AMMO);
-    m_game_state.ammo->set_entity_type(AMMO);
-    m_game_state.ammo->set_position(glm::vec3(12.0f, -1.0f, 0.0f));
-    m_game_state.ammo->set_start_position(glm::vec3(12.0f, -1.0f, 0.0f));
-    m_game_state.ammo->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
-    
-    // ––––– LIVES ––––– //                      1,3, 0);
-    m_game_state.ammo->set_position(glm::vec3(5.0f, 1.0f, 0.0f));
-    
     /**
      BGM and SFX
      */
@@ -109,10 +97,10 @@ void LevelA::initialise()
 
 void LevelA::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map, m_game_state.ammo);
+    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
     
     for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
-                                                                         m_game_state.map, m_game_state.ammo);
+                                                                         m_game_state.map);
     m_game_state.lives = m_game_state.player->get_lives();
     if (m_game_state.player->get_position().y < -10.0f) {
         m_game_state.next_scene_id = 1;

@@ -22,7 +22,7 @@
 #include "ShaderProgram.h"
 #include "Entity.h"
 
-void Entity::ai_activate(Entity *player,float delta_time, Entity *ammo)
+void Entity::ai_activate(Entity *player,float delta_time)
 {
     switch (m_ai_type)
     {
@@ -33,10 +33,6 @@ void Entity::ai_activate(Entity *player,float delta_time, Entity *ammo)
         case JUMPER:
             ai_jump(player, delta_time);
             break;
-        case SHOOTER:
-            ai_shoot(player, ammo);
-            break;
-            
         default:
             break;
     }
@@ -111,38 +107,6 @@ void Entity::ai_guard(Entity *player)
     }
 }
 
-void Entity::ai_shoot(Entity *player, Entity *ammo)
-{
-    //glm::vec3 start_pos = get_position();
-    switch (m_ai_state) {
-        case IDLE:
-            //start walking when player is near
-            if(player->get_state()){
-                if (glm::distance(m_position, player->get_position()) < 7.0f) {
-                    m_ai_state = ATTACKING;
-                } else {
-                    m_movement = glm::vec3(0.0f, 0.0f, 0.0f);
-                }
-            }
-            break;
-        case WALKING:
-            break;
-            
-        case ATTACKING: //make the bullet shoot
-            ammo->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
-            ammo->set_acceleration(glm::vec3(-150.0f, 0.0f, 0.0f));
-            
-            if(ammo->get_collided_right() || ammo->get_collided_left()){//reset the ammo positions when it hits the wall
-                ammo->set_position(ammo->get_start_position());
-            }
-            break;
-        case JUMPING:
-            break;
-            
-        default:
-            break;
-    }
-}
 // Default constructor
 Entity::Entity()
     : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
@@ -269,7 +233,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 m_collided_top  = true;
                 
                 //enemy hit player in the head
-                if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY || collidable_entity->get_entity_type() == AMMO)){
+                if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(get_lives() > 0){
                         m_invincible = true;
                         m_invincible_timer = 1.5f;
@@ -293,16 +257,6 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
                     inc_stomp_count();
                     std::cout<< "stomped enemy\n";
-                }
-                //enemy hit head
-                if(m_entity_type == PLAYER && !m_invincible && collidable_entity->get_entity_type() == AMMO){
-                    if(get_lives() > 0){
-                        dec_lives();
-                        m_invincible = true;
-                        m_invincible_timer = 2.5f;
-                    }else{
-                        game_over = true;
-                    }
                 }
             }
         }
@@ -336,17 +290,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
             }
             
             if(m_collided_left || m_collided_right){//enemy hit player
-                if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY || collidable_entity->get_entity_type() == AMMO)){
-                    if(get_lives() > 0){
-                        dec_lives();
-                        m_invincible = true;
-                        m_invincible_timer = 1.5f;
-                    }else{
-                        game_over = true;
-                    }
-                }
-                
-                if(m_entity_type == AMMO && collidable_entity->get_entity_type() == PLAYER){
+                if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY )){
                     if(get_lives() > 0){
                         dec_lives();
                         m_invincible = true;
@@ -471,7 +415,7 @@ void const Entity::check_collision_x(Map *map)
 }
 
 
-void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *ammo)
+void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map)
 {
     if(player->get_state()){
         if (!m_is_active) return;
@@ -483,14 +427,12 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
         
         
         if (m_entity_type == ENEMY) {
-            ai_activate(player, delta_time, ammo);
             if(m_ai_type == GUARD){
                 pit_detection(map);
             }
             if(m_ai_type == JUMPER && m_is_jumping){
                 m_position.y += 0.14f * glm::cos(delta_time); //jumps up and down when the player is near
             }
-            if(m_ai_type == SHOOTER){}
         }
         
         //timer for invincibility after getting hit by enemy

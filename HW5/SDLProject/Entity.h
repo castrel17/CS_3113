@@ -4,8 +4,8 @@
 #include "Map.h"
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
-enum EntityType { PLATFORM, PLAYER, ENEMY, AMMO, LIVES  };
-enum AIType     { GUARD, JUMPER, SHOOTER}; //
+enum EntityType { PLATFORM, PLAYER, ENEMY, LIVES  };
+enum AIType     { GUARD, JUMPER}; //
 enum AIState    { WALKING, IDLE, ATTACKING, JUMPING};
 enum Lives{THREE, TWO, ONE, ZERO};
 
@@ -94,13 +94,12 @@ public:
     void const check_collision_y(Map *map);
     void const check_collision_x(Map *map);
     
-    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *ammo);
+    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map);
     void render(ShaderProgram* program);
 
-    void ai_activate(Entity *player, float delta_time, Entity *ammo);
+    void ai_activate(Entity *player, float delta_time);
     void ai_walk();
     void ai_jump(Entity *player, float delta_time);
-    void ai_shoot(Entity *player, Entity *ammo);
     void ai_guard(Entity *player);
     void pit_detection(Map *map);
     

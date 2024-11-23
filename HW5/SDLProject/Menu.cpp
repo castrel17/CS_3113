@@ -78,20 +78,10 @@ void Menu::initialise()
     
     /**Enemies' stuff */
     GLuint enemy_texture_id = Utility::load_texture(ENEMY_FILEPATH);
-
     m_game_state.enemies = new Entity[ENEMY_COUNT];
-
-    m_game_state.enemies[0].set_position(glm::vec3(8.0f, 0.0f, 0.0f));
+    m_game_state.enemies[0] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+    m_game_state.enemies[0].set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
     m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
-    
-    
-    GLuint ammo_texture_id = Utility::load_texture(AMMO_FILEPATH);
-    m_game_state.ammo =  new Entity(ammo_texture_id, 1.0f, 1.0f, 1.0f, AMMO);
-    m_game_state.ammo->set_entity_type(AMMO);
-    m_game_state.ammo->set_position(glm::vec3(12.0f, -1.0f, 0.0f));
-    m_game_state.ammo->set_start_position(glm::vec3(12.0f, -1.0f, 0.0f));
-    m_game_state.ammo->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
     
     /**
      BGM and SFX
@@ -103,16 +93,11 @@ void Menu::initialise()
     Mix_VolumeMusic(20.0f);
     
     m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
-    
-    g_bkgd_texture_id = Utility::load_texture(BACKGROUND_FILEPATH);
-    g_bkgd_matrix = glm::mat4(1.0f);
-    g_bkgd_matrix  = glm::translate(g_bkgd_matrix, glm::vec3(0.0f, 0.0f, 0.0f));
-    g_bkgd_matrix  = glm::scale(g_bkgd_matrix, glm::vec3(60.5f, 12.5f, 1.0f));  
 }
 
 void Menu::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map, m_game_state.ammo);
+    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
     m_game_state.player->deactivate();
     if (m_game_state.player->get_position().y < -10.0f) m_game_state.next_scene_id = 1;
 }
