@@ -30,11 +30,12 @@ struct GameState
     // ————— AUDIO ————— //
     Mix_Music *bgm;
     Mix_Chunk *jump_sfx;
-    Mix_Chunk *hurt_sfx;
     Mix_Chunk *lose_sfx;
     Mix_Chunk *win_sfx;
     bool sound_played = false;
     GLuint font;
+    
+    bool pause_screen = false;
     
     // ————— POINTERS TO OTHER SCENES ————— //
     int next_scene_id;
@@ -54,6 +55,7 @@ public:
     virtual void update(float delta_time) = 0;
     virtual void render(ShaderProgram *program) = 0;
     
+    void set_pause_screen(bool status){m_game_state.pause_screen = status;}
     // ————— GETTERS ————— //
     GameState const get_state() const { return m_game_state;             }
     int const get_number_of_enemies() const { return m_number_of_enemies; }

@@ -27,6 +27,7 @@ LevelB::~LevelB()
 {
     Mix_FreeMusic(m_game_state.bgm);
     Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.lose_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
@@ -120,18 +121,20 @@ void LevelB::initialise()
 
 void LevelB::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
-    
-    for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
-                                                                         m_game_state.map);
-    m_game_state.lives = m_game_state.player->get_lives();
-    if (m_game_state.player->get_position().y < -10.0f) {
-        m_game_state.next_scene_id = 1;
-    }
-    
-    if (m_game_state.player->get_game_status() && !m_game_state.sound_played) {
-        Mix_PlayChannel(-1, m_game_state.lose_sfx, 0);
-        m_game_state.sound_played = true;
+    if(!m_game_state.pause_screen){
+        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
+        
+        for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
+                                                                             m_game_state.map);
+        m_game_state.lives = m_game_state.player->get_lives();
+        if (m_game_state.player->get_position().y < -10.0f) {
+            m_game_state.next_scene_id = 1;
+        }
+        
+        if (m_game_state.player->get_game_status() && !m_game_state.sound_played) {
+            Mix_PlayChannel(-1, m_game_state.lose_sfx, 0);
+            m_game_state.sound_played = true;
+        }
     }
 }
 

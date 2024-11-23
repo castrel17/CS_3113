@@ -99,6 +99,8 @@ void Menu::render(ShaderProgram *program)
 {
     Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Welcome!", 0.5f, 0.005f, glm::vec3(3.0f, -2.0f, 0.0f));
     Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Press enter to start", 0.5f, 0.005f, glm::vec3(0.25f, -2.5f, 0.0f));
+    
+    Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Press esc to pause", 0.5f, 0.005f, glm::vec3(0.25f, -3.0f, 0.0f));
     m_game_state.map->render(program);
     m_game_state.player->render(program);
     

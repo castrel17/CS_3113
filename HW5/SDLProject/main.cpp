@@ -64,6 +64,8 @@ constexpr int VIEWPORT_X = 0,
 constexpr char V_SHADER_PATH[] = "shaders/vertex_textured.glsl",
            F_SHADER_PATH[] = "shaders/fragment_textured.glsl";
 
+bool pause_screen = false; //false = not paused
+
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 int curr_lives = 3;
 enum AppStatus { RUNNING, TERMINATED };
@@ -197,7 +199,15 @@ void process_input()
                             switch_to_scene(g_levels[0], 3);
                         }
                         break;
-                        
+                    case SDLK_ESCAPE: //this is the pause button
+                        if(!pause_screen){
+                            pause_screen = true;
+                            g_current_scene->set_pause_screen(pause_screen);
+                        }else{
+                            pause_screen = false;
+                            g_current_scene->set_pause_screen(pause_screen);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -210,8 +220,8 @@ void process_input()
     
     const Uint8 *key_state = SDL_GetKeyboardState(NULL);
 
-    if (key_state[SDL_SCANCODE_LEFT])        g_current_scene->get_state().player->move_left();
-        else if (key_state[SDL_SCANCODE_RIGHT])  g_current_scene->get_state().player->move_right();
+    if (key_state[SDL_SCANCODE_LEFT] && !pause_screen)        g_current_scene->get_state().player->move_left();
+        else if (key_state[SDL_SCANCODE_RIGHT] && !pause_screen)  g_current_scene->get_state().player->move_right();
          
     if (glm::length( g_current_scene->get_state().player->get_movement()) > 1.0f)
         g_current_scene->get_state().player->normalise_movement();
@@ -256,20 +266,23 @@ void update()
     g_accumulator = delta_time;
     
     // Prevent the camera from showing anything outside of the "edge" of the level
-    g_view_matrix = glm::mat4(1.0f);
-    
-    if (g_current_scene->get_state().player->get_position().x > LEVEL1_LEFT_EDGE) {
-        g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_current_scene->get_state().player->get_position().x, 3.75, 0));
-    } else {
-        g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5, 3.75, 0));
-    }
-    curr_lives = g_current_scene->get_num_lives();
-    
-    if (g_current_scene == g_levelA && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_levelB, curr_lives);
-    if (g_current_scene == g_levelB && g_current_scene->get_state().player->get_position().y < -10.0f && g_current_scene->get_state().player->get_position().x > 4.0f  ) switch_to_scene(g_levelC, curr_lives);
+    if(!pause_screen){
+        g_view_matrix = glm::mat4(1.0f);
+        
+        if (g_current_scene->get_state().player->get_position().x > LEVEL1_LEFT_EDGE) {
+            g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-g_current_scene->get_state().player->get_position().x, 3.75, 0));
+        } else {
+            g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5, 3.75, 0));
+        }
+        curr_lives = g_current_scene->get_num_lives();
+        
+        if (g_current_scene == g_levelA && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_levelB, curr_lives);
+        if (g_current_scene == g_levelB && g_current_scene->get_state().player->get_position().y < -10.0f && g_current_scene->get_state().player->get_position().x > 4.0f  ) switch_to_scene(g_levelC, curr_lives);
 
-    
-    g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
+        
+        g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
+        
+    }
 }
 
 void render()
