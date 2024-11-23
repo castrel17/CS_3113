@@ -15,6 +15,7 @@
  Win: https://freesound.org/people/Fupicat/sounds/521639/
  Lose: https://freesound.org/people/Fupicat/sounds/538151/
  Jump: https://freesound.org/people/el_boss/sounds/751698/
+ Enemy AI: https://grafxkid.itch.io/sprite-pack-2
  */
 #define GL_SILENCE_DEPRECATION
 #define GL_GLEXT_PROTOTYPES 1
@@ -234,23 +235,21 @@ void update()
     while (delta_time >= FIXED_TIMESTEP) {
         g_current_scene->update(FIXED_TIMESTEP);
         g_effects->update(FIXED_TIMESTEP);
-
+        //the screen shakes everytime a player stomps on an enemy
         g_new_stomp_count = g_current_scene->get_state().player->get_stomp_count();
 
         if (g_old_stomp_count < g_new_stomp_count) {
-            // A new stomp occurred, start the shake effect
             g_effects->start(SHAKE, 1.0f);
-            g_shake_timer = 1.0f; // Set the shake timer to 1.0 seconds
+            g_shake_timer = 1.0f;
         }
 
-        // Decrease shake timer if active
         if (g_shake_timer > 0) {
-            g_shake_timer -= FIXED_TIMESTEP; // Reduce timer by fixed timestep
+            g_shake_timer -= FIXED_TIMESTEP;
         } else {
-            g_effects->start(NONE); // Stop the shake effect when the timer ends
+            g_effects->start(NONE);
         }
 
-        g_old_stomp_count = g_new_stomp_count; // Update stomp count for the next iteration
+        g_old_stomp_count = g_new_stomp_count;
         delta_time -= FIXED_TIMESTEP;
     }
     

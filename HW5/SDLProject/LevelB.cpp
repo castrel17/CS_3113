@@ -9,8 +9,7 @@
  */
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
-                ENEMY_FILEPATH[]       = "assets/images/jumping_ai.png",
-                AMMO_FILEPATH[]         = "assets/images/fish.png";
+                ENEMY_FILEPATH[]       = "assets/images/jumping_ai.png";
 unsigned int LEVELB_DATA[] =
 {
     5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,

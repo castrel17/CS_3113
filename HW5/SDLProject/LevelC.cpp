@@ -7,7 +7,6 @@
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
                 ENEMY_FILEPATH[]       = "assets/images/jumping_ai.png",
-                AMMO_FILEPATH[]         = "assets/images/fish.png",
                 ENEMY_GUARD_FILEPATH[]       = "assets/images/onion.png";
 
 unsigned int LEVELC_DATA[] =
@@ -17,7 +16,7 @@ unsigned int LEVELC_DATA[] =
     5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 5,
     5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
     5, 0, 0, 0, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
-    5, 2, 2, 0, 2, 2, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    5, 2, 0, 0, 2, 2, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
     5, 2, 2, 0, 0, 0, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
     5, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3,
 };

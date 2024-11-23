@@ -6,15 +6,8 @@
 
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/player.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
-                BACKGROUND_FILEPATH[]         = "assets/images/grocery_bkgd.png",
-                ENEMY_FILEPATH[]       = "assets/images/AI1.png",
-                AMMO_FILEPATH[]         = "assets/images/fish.png";
+            ENEMY_FILEPATH[]       = "assets/images/AI1.png";
 
-/**
- Sources:
- Background: https://grafxkid.itch.io/seasonal-tilesets
- 
- */
 
 GLuint g_bkgd_texture_id;
 glm::mat4 g_bkgd_matrix;
