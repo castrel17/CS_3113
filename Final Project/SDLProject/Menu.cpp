@@ -6,6 +6,7 @@
 
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/pink.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
+ORB_FILEPATH[]       = "assets/images/orb.png",
             ENEMY_FILEPATH[]       = "assets/images/AI1.png";
 
 
@@ -77,6 +78,13 @@ void Menu::initialise()
     m_game_state.enemies[0].set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
     m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
     
+    
+    /**ORB*/
+    GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
+    m_game_state.orb= new Entity(orb_texture_id, 0.0f, 0.5f, 0.5f, ORB);
+    m_game_state.orb->set_position(glm::vec3(18.0f, -1.0f, 0.0f)); //spawn at the end of maze
+    m_game_state.orb->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
+    
     /**
      BGM and SFX
      */
@@ -91,7 +99,7 @@ void Menu::initialise()
 
 void Menu::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
+    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map,m_game_state.orb);
     m_game_state.player->deactivate();
     if (m_game_state.player->get_position().y < -10.0f) m_game_state.next_scene_id = 1;
 }

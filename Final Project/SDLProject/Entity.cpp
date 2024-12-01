@@ -265,17 +265,25 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 // Collision!
                 m_collided_bottom  = true;
                 
-                //player stomped enemy, enemy disappears
+                //if the player is attacking then the enemy dies, if not then the player loses a life
                 if(m_entity_type == PLAYER && collidable_entity->get_entity_type() == ENEMY){
-                    collidable_entity->deactivate();
-                    collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
-                    inc_stomp_count();
-                    std::cout<< "stomped enemy\n";
-                }else if(m_entity_type == PLAYER && collidable_entity->get_entity_type() == ORB){
-                    collidable_entity->deactivate();
-                    collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
-                    set_hit_orb(true);
-                    
+                    if(m_attacking){
+                        collidable_entity->deactivate();
+                        collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
+                        inc_stomp_count();
+                        std::cout<< "stomped enemy\n";
+                    }else{
+                        if(get_lives() > 0){
+                            dec_lives();
+                            m_invincible = true;
+                            m_invincible_timer = 1.5f;
+                        }else{
+                            game_over = true;
+                        }
+                    }
+                }else if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ORB)){
+                    m_hit_orb = true;
+                    std::cout<< "hit orb";
                 }
             }
         }
@@ -308,22 +316,28 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                 m_collided_left  = true;
             }
             
-            if(m_collided_left || m_collided_right){//enemy hit player
-                if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY )){
-                    if(get_lives() > 0){
-                        dec_lives();
-                        m_invincible = true;
-                        m_invincible_timer = 1.5f;
+            //if the player is attacking then the enemy dies, if not then the player loses a life
+            if(m_collided_left || m_collided_right){
+                if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
+                    if(m_attacking){
+                        collidable_entity->deactivate();
+                        collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
+                        inc_stomp_count();
+                        std::cout<< "stomped enemy\n";
                     }else{
-                        game_over = true;
+                        if(get_lives() > 0){
+                            dec_lives();
+                            m_invincible = true;
+                            m_invincible_timer = 1.5f;
+                        }else{
+                            game_over = true;
+                        }
                     }
+                }else if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ORB)){
+                    m_hit_orb = true;
+                    std::cout<< "hit orb";
                 }
-                else if(m_entity_type == PLAYER && collidable_entity->get_entity_type() == ORB){
-                    collidable_entity->deactivate();
-                    collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
-                    set_hit_orb(true);
-                    
-                }
+                
             }
         }
     }
@@ -426,7 +440,7 @@ void const Entity::check_collision_x(Map *map)
 }
 
 
-void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map)
+void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *orb)
 {
     if(player->get_state()){
         if (!m_is_active) return;

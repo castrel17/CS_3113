@@ -96,7 +96,7 @@ public:
     void const check_collision_y(Map *map);
     void const check_collision_x(Map *map);
     
-    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map);
+    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *orb);
     void render(ShaderProgram* program);
 
     void ai_activate(Entity *player, float delta_time);
@@ -116,7 +116,7 @@ public:
     void move_right() { m_movement.x = 1.0f;  face_right(); }
     void move_up() { m_movement.y = 1.0f;  face_up(); }
     void move_down() { m_movement.y = -1.0f; face_down(); }
-    void attacking(){m_attacking = true;}
+    void attacking(bool attack_status){m_attacking = attack_status;}
 
     // ————— GETTERS ————— //
     EntityType const get_entity_type()    const { return m_entity_type;   };

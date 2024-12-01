@@ -10,7 +10,7 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/black.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
 unsigned int LEVELA_DATA[] = {
-    5, 0, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
+    5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
     1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3,
     5, 0, 4, 0, 3, 2, 4, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 4,
     4, 0, 3, 0, 0, 0, 3, 0, 2, 3, 3, 1, 1, 0, 0, 3, 0, 3, 0, 5,
@@ -65,7 +65,7 @@ void LevelA::initialise()
            0.4f,                       // height
            PLAYER
     );
-    m_game_state.player->set_position(glm::vec3(1.0f, 0.0f, 0.0f));
+    m_game_state.player->set_position(glm::vec3(1.0f, -1.0f, 0.0f));
     m_game_state.player->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
     
     /**Enemies' stuff */
@@ -82,7 +82,7 @@ void LevelA::initialise()
     m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
     
     
-    /**ORB*/
+    /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
     m_game_state.orb= new Entity(orb_texture_id, 0.0f, 0.5f, 0.5f, ORB);
     m_game_state.orb->set_position(glm::vec3(18.0f, -1.0f, 0.0f)); //spawn at the end of maze
@@ -102,10 +102,10 @@ void LevelA::initialise()
 void LevelA::update(float delta_time)
 {
     if(!m_game_state.pause_screen){
-        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
-        m_game_state.orb->update(delta_time, m_game_state.player, NULL, 0, m_game_state.map);
+        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
+        m_game_state.orb->update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
         for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
-                                                                             m_game_state.map);
+                                                                             m_game_state.map, m_game_state.orb);
         m_game_state.lives = m_game_state.player->get_lives();
         if (m_game_state.player->get_hit_orb()) { //only advance the player when it hits the orb
             m_game_state.player->set_hit_orb(false);

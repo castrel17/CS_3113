@@ -7,6 +7,7 @@
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/pink.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
                 ENEMY_FILEPATH[]       = "assets/images/jumping_ai.png",
+ORB_FILEPATH[]       = "assets/images/orb.png",
                 ENEMY_GUARD_FILEPATH[]       = "assets/images/onion.png";
 
 unsigned int LEVELC_DATA[] =
@@ -104,6 +105,11 @@ void LevelC::initialise()
     m_game_state.enemies[0].set_position(glm::vec3(8.5f, -2.0f, 0.0f));
     m_game_state.enemies[1].set_position(glm::vec3(16.5f, -2.0f, 0.0f));
     
+    /**ORB*/
+    GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
+    m_game_state.orb= new Entity(orb_texture_id, 0.0f, 0.5f, 0.5f, ORB);
+    m_game_state.orb->set_position(glm::vec3(18.0f, -1.0f, 0.0f)); //spawn at the end of maze
+    m_game_state.orb->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
     
     //guard enemies
     GLuint enemy_guard_texture_id = Utility::load_texture(ENEMY_GUARD_FILEPATH);
@@ -128,10 +134,10 @@ void LevelC::initialise()
 void LevelC::update(float delta_time)
 {
     if(!m_game_state.pause_screen){
-        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map);
-        
+        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
+        m_game_state.orb->update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
         for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
-                                                                             m_game_state.map);
+                                                                             m_game_state.map, m_game_state.orb);
         m_game_state.lives = m_game_state.player->get_lives();
         if (m_game_state.player->get_position().y < -10.0f) {
             m_game_state.next_scene_id = 1;

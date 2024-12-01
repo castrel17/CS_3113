@@ -65,7 +65,7 @@ constexpr char V_SHADER_PATH[] = "shaders/vertex_lit.glsl",
            F_SHADER_PATH[] = "shaders/fragment_lit.glsl";
 
 bool pause_screen = false; //false = not paused
-
+bool key_pressed = false;
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 int curr_lives = 3;
 enum AppStatus { RUNNING, TERMINATED };
@@ -215,8 +215,14 @@ void process_input()
         else if (key_state[SDL_SCANCODE_RIGHT] && !pause_screen)  g_current_scene->get_state().player->move_right();
         else if (key_state[SDL_SCANCODE_UP] && !pause_screen)  g_current_scene->get_state().player->move_up();
         else if (key_state[SDL_SCANCODE_DOWN] && !pause_screen)  g_current_scene->get_state().player->move_down();
-    if (key_state[SDL_SCANCODE_SPACE] && !pause_screen) g_current_scene->get_state().player->attacking();
-         
+    if (key_state[SDL_SCANCODE_SPACE] && !pause_screen && !key_pressed) {
+        g_effects->start(SHAKE, 1.0f); //try to make it so that the players can't just hold down the space key
+        g_current_scene->get_state().player->attacking(true);
+    }else if(!key_state[SDL_SCANCODE_SPACE] && key_pressed){
+        g_effects->start(NONE);
+        g_current_scene->get_state().player->attacking(false);
+    }
+    key_pressed = key_state[SDL_SCANCODE_SPACE];
     if (glm::length( g_current_scene->get_state().player->get_movement()) > 1.0f)
         g_current_scene->get_state().player->normalise_movement();
     
@@ -239,21 +245,6 @@ void update()
     while (delta_time >= FIXED_TIMESTEP) {
         g_current_scene->update(FIXED_TIMESTEP);
         g_effects->update(FIXED_TIMESTEP);
-        //the screen shakes everytime a player stomps on an enemy
-        g_new_stomp_count = g_current_scene->get_state().player->get_stomp_count();
-
-        if (g_old_stomp_count < g_new_stomp_count) {
-            g_effects->start(SHAKE, 1.0f);
-            g_shake_timer = 1.0f;
-        }
-
-        if (g_shake_timer > 0) {
-            g_shake_timer -= FIXED_TIMESTEP;
-        } else {
-            g_effects->start(NONE);
-        }
-
-        g_old_stomp_count = g_new_stomp_count;
         delta_time -= FIXED_TIMESTEP;
     }
     
