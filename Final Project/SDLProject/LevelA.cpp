@@ -52,7 +52,7 @@ void LevelA::initialise()
     
     m_game_state.player = new Entity(
            player_texture_id,         // texture id
-           1.0f,                      // speed
+           3.0f,                      // speed
            acceleration,              // acceleration
            3.0f,                      // jumping power
            player_walking_animation,  // animation index sets
@@ -67,7 +67,6 @@ void LevelA::initialise()
     );
     m_game_state.player->set_position(glm::vec3(1.0f, -1.0f, 0.0f));
     m_game_state.player->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
-    
     /**Enemies' stuff */
     // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
@@ -80,7 +79,7 @@ void LevelA::initialise()
     m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
     m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platform
     m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
-    
+    m_game_state.enemies[0].set_lives(5);
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
@@ -103,11 +102,15 @@ void LevelA::update(float delta_time)
 {
     if(!m_game_state.pause_screen){
         m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
-        m_game_state.orb->update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
+        
+        if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
+            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
+        }
+        
         for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
                                                                              m_game_state.map, m_game_state.orb);
         m_game_state.lives = m_game_state.player->get_lives();
-        if (m_game_state.player->get_hit_orb()) { //only advance the player when it hits the orb
+        if (m_game_state.orb->get_hit_orb()) { //only advance the player when it hits the orb
             m_game_state.player->set_hit_orb(false);
             m_game_state.next_scene_id = 1;
         }
@@ -124,7 +127,11 @@ void LevelA::render(ShaderProgram *program)
     m_game_state.map->render(program);
     m_game_state.player->render(program);
     m_game_state.enemies->render(program);
-    m_game_state.orb->render(program);
+    
+    //only render the orb when all enemies are killed
+    if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
+        m_game_state.orb->render(program);
+    }
     int lives = m_game_state.player->get_lives();
     glm::vec3 player_pos = m_game_state.player->get_position();
     
@@ -133,7 +140,7 @@ void LevelA::render(ShaderProgram *program)
     program->set_light_position_matrix(player_pos);
     
     if(m_game_state.player->get_game_status()){ //true = over
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +2.0f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.5f, 0.0f)); //lives above the players head
     }else{
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
     }

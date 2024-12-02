@@ -175,9 +175,9 @@ void LevelC::render(ShaderProgram *program)
 
     if(m_game_state.player->get_game_status()){ //true = over
         if(m_game_state.player->get_win_status()){
-            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Win", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +2.0f, 0.0f));
+            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Win", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f));
         }else{
-            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +2.0f, 0.0f));
+            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f));
         }
     }else{
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
