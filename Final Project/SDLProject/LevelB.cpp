@@ -4,26 +4,21 @@
 #define LEVEL_WIDTH 20
 #define LEVEL_HEIGHT 8
 
-/**
- BGM: https://pixabay.com/music/search/cute%20viedogame/?genre=video%2520games
- */
-constexpr char SPRITESHEET_FILEPATH[] = "assets/images/pink.png",
-                FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
-ORB_FILEPATH[]       = "assets/images/orb.png",
-                ENEMY_FILEPATH[]       = "assets/images/jumping_ai.png";
+constexpr char SPRITESHEET_FILEPATH[] = "assets/images/black.png",
+           AI1_FILEPATH[]       = "assets/images/onion.png",
+            ORB_FILEPATH[]       = "assets/images/orb.png",
+            FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
-unsigned int LEVELB_DATA[] =
-{
-    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
-    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
-    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
-    5, 2, 0, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
-    5, 0, 5, 1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 2, 5,
-    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    5, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 0,
+unsigned int LEVELB_DATA[] = {
+    5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
+    1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3,
+    5, 0, 4, 0, 3, 2, 4, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 4,
+    4, 0, 3, 0, 0, 0, 3, 0, 2, 3, 3, 1, 1, 0, 0, 3, 0, 3, 0, 5,
+    3, 0, 2, 0, 1, 0, 2, 0, 0, 0, 1, 1, 1, 1, 0, 4, 0, 1, 0, 1,
+    2, 0, 1, 2, 1, 0, 2, 2, 2, 0, 1, 1, 1, 1, 0, 5, 0, 2, 0, 2,
+    1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
+    5, 3, 4, 5, 4, 3, 4, 5, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
-
 
 LevelB::~LevelB()
 {
@@ -40,8 +35,8 @@ void LevelB::initialise()
 {
     m_game_state.next_scene_id = -1;
     
-    GLuint map_texture_id = Utility::load_texture("assets/images/grocery_tiles.png");
-    m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVELB_DATA, map_texture_id, 1.0f, 5, 1);
+    GLuint map_texture_id = Utility::load_texture("assets/images/cyber_tiles.png");
+    m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVELB_DATA, map_texture_id, 1.0f, 4, 1);
     
     int player_walking_animation[4][4] =
     {
@@ -57,7 +52,7 @@ void LevelB::initialise()
     
     m_game_state.player = new Entity(
            player_texture_id,         // texture id
-           5.0f,                      // speed
+           3.0f,                      // speed
            acceleration,              // acceleration
            3.0f,                      // jumping power
            player_walking_animation,  // animation index sets
@@ -66,58 +61,36 @@ void LevelB::initialise()
            0,                         // current animation index
            4,                         // animation column amount
            4,                         // animation row amount
-           1.0f,                      // width
-           1.0f,                       // height
+           0.4f,                      // width
+           0.4f,                       // height
            PLAYER
     );
-    m_game_state.player->set_position(glm::vec3(1.0f, 0.0f, 0.0f));
-    m_game_state.player->set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
-    m_game_state.player->set_jumping_power(3.0f);
-    m_game_state.player->set_lives(m_game_state.lives);
-    
+    m_game_state.player->set_position(glm::vec3(1.0f, -1.0f, 0.0f));
+    m_game_state.player->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
     /**Enemies' stuff */
-    int enemy_jumping_animation[2][1] =
-    {
-        {0},  //in air
-        {1}, //on ground
-    };
-    GLuint enemy_texture_id = Utility::load_texture(ENEMY_FILEPATH);
-
+    // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
-    for(int i = 0; i < ENEMY_COUNT; i++){
-        m_game_state.enemies[i] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, JUMPER, JUMPING);
-        m_game_state.enemies[i].set_entity_type(ENEMY);
-        m_game_state.enemies[i].set_ai_type(JUMPER);
-        m_game_state.enemies[i].set_jumping_power(4.0f);
-        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
-        m_game_state.enemies[i].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
-        //animating enemy
-        m_game_state.enemies[i].set_animation_time(0.0f);
-        m_game_state.enemies[i].set_animation_cols(2);
-        m_game_state.enemies[i].set_animation_rows(1);
-        m_game_state.enemies[i].set_animation_index(0);
-        m_game_state.enemies[i].set_animation_frames(2);
-        m_game_state.enemies[i].set_jumping(enemy_jumping_animation);
-        m_game_state.enemies[i].set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
-    }
     
-    //the enemies all have different positions
-    m_game_state.enemies[0].set_position(glm::vec3(5.5f, -2.0f, 0.0f));
-    m_game_state.enemies[1].set_position(glm::vec3(11.5f, -2.0f, 0.0f));
-    m_game_state.enemies[2].set_position(glm::vec3(16.5f, -2.0f, 0.0f));
+    GLuint ai1_texture_id = Utility::load_texture(AI1_FILEPATH);
     
-    /**ORB*/
+    m_game_state.enemies[0] =  Entity(ai1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+    m_game_state.enemies[0].set_entity_type(ENEMY);
+    m_game_state.enemies[0].set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
+    m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
+    m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platform
+    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
+    m_game_state.enemies[0].set_lives(5);
+    
+    /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
     m_game_state.orb= new Entity(orb_texture_id, 0.0f, 0.5f, 0.5f, ORB);
     m_game_state.orb->set_position(glm::vec3(18.0f, -1.0f, 0.0f)); //spawn at the end of maze
     m_game_state.orb->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
     
-    /**
-     BGM and SFX
-     */
+    /**BGM and SFX*/
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
     
-    m_game_state.bgm = Mix_LoadMUS("assets/audio/bgm3.mp3");
+    m_game_state.bgm = Mix_LoadMUS("assets/audio/bgm1.mp3");
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
@@ -129,11 +102,16 @@ void LevelB::update(float delta_time)
 {
     if(!m_game_state.pause_screen){
         m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
-        m_game_state.orb->update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
+        
+        if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
+            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
+        }
+        
         for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
                                                                              m_game_state.map, m_game_state.orb);
         m_game_state.lives = m_game_state.player->get_lives();
-        if (m_game_state.player->get_position().y < -10.0f) {
+        if (m_game_state.orb->get_hit_orb()) { //only advance the player when it hits the orb
+            m_game_state.player->set_hit_orb(false);
             m_game_state.next_scene_id = 1;
         }
         
@@ -148,7 +126,12 @@ void LevelB::render(ShaderProgram *program)
 {
     m_game_state.map->render(program);
     m_game_state.player->render(program);
-    for (int i = 0; i < ENEMY_COUNT; i++)    m_game_state.enemies[i].render(program);
+    m_game_state.enemies->render(program);
+    
+    //only render the orb when all enemies are killed
+    if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
+        m_game_state.orb->render(program);
+    }
     int lives = m_game_state.player->get_lives();
     glm::vec3 player_pos = m_game_state.player->get_position();
     
@@ -157,7 +140,7 @@ void LevelB::render(ShaderProgram *program)
     program->set_light_position_matrix(player_pos);
     
     if(m_game_state.player->get_game_status()){ //true = over
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.5f, 0.0f)); //lives above the players head
     }else{
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
     }

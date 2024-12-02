@@ -31,7 +31,7 @@ private:
     glm::vec3 m_velocity;
     glm::vec3 m_acceleration;
     glm::vec3 m_start_pos;
-    float m_rotation_angle;
+    float m_rotation_angle = 0.0f;
     glm::mat4 m_model_matrix;
 
     float     m_speed,
@@ -68,6 +68,7 @@ private:
     int m_lives = 3;
     bool m_hit_orb = false;
     
+    //kill cool down for player and enemy
     bool m_invincible = false;
     float m_invincible_timer = 0.0f;
     
@@ -140,6 +141,7 @@ public:
     bool      const get_stomp_count() const { return m_stomp_count; }
     bool      const get_win_status() const { return player_wins; }
     bool      const get_on_screen() const { return m_on_screen; }
+    bool      const get_invincible() const { return m_invincible; }
     int      const get_lives() const { return m_lives; }
     
     void activate()   { m_is_active = true;  };
@@ -171,6 +173,7 @@ public:
     void const set_win_status(bool new_status) {player_wins = new_status; }
     void const set_lives(int new_lives){m_lives = new_lives;}
     void const set_hit_orb(bool new_status){m_hit_orb = new_status;}
+    void const set_invincible(bool new_status) { m_invincible = new_status; }
     void dec_lives() {m_lives--;}
     // Setter for m_walking
     void set_walking(int walking[4][4])

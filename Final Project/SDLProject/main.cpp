@@ -66,6 +66,7 @@ constexpr char V_SHADER_PATH[] = "shaders/vertex_lit.glsl",
 
 bool pause_screen = false; //false = not paused
 bool key_pressed = false;
+float key_pressed_timer = 0.0f;
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
 int curr_lives = 3;
 enum AppStatus { RUNNING, TERMINATED };
@@ -113,7 +114,7 @@ void switch_to_scene(Scene *scene, int curr_lives)
 void initialise()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
-    g_display_window = SDL_CreateWindow("Escape the Grocery Store",
+    g_display_window = SDL_CreateWindow("Escape the City",
                                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                       WINDOW_WIDTH, WINDOW_HEIGHT,
                                       SDL_WINDOW_OPENGL);
@@ -202,8 +203,6 @@ void process_input()
                     default:
                         break;
                 }
-            
-                
             default:
                 break;
         }
@@ -215,14 +214,17 @@ void process_input()
         else if (key_state[SDL_SCANCODE_RIGHT] && !pause_screen)  g_current_scene->get_state().player->move_right();
         else if (key_state[SDL_SCANCODE_UP] && !pause_screen)  g_current_scene->get_state().player->move_up();
         else if (key_state[SDL_SCANCODE_DOWN] && !pause_screen)  g_current_scene->get_state().player->move_down();
+   //player can't hold down space, they need to repeatedly press to attack
     if (key_state[SDL_SCANCODE_SPACE] && !pause_screen && !key_pressed) {
-        g_effects->start(SHAKE, 1.0f); //try to make it so that the players can't just hold down the space key
+        g_effects->start(SHAKE, 1.0f);
         g_current_scene->get_state().player->attacking(true);
-    }else if(!key_state[SDL_SCANCODE_SPACE] && key_pressed){
+        key_pressed_timer = 1.0f;
+        key_pressed = true;
+    }else if(!key_state[SDL_SCANCODE_SPACE] && !pause_screen){
         g_effects->start(NONE);
         g_current_scene->get_state().player->attacking(false);
     }
-    key_pressed = key_state[SDL_SCANCODE_SPACE];
+    
     if (glm::length( g_current_scene->get_state().player->get_movement()) > 1.0f)
         g_current_scene->get_state().player->normalise_movement();
     
@@ -248,6 +250,14 @@ void update()
         delta_time -= FIXED_TIMESTEP;
     }
     
+    //prevent player from holding down space
+    if(key_pressed){
+        key_pressed_timer -= delta_time;
+        
+        if(key_pressed_timer <= 0){
+            key_pressed = false;
+        }
+    }
     g_accumulator = delta_time;
     
     // Prevent the camera from showing anything outside of the "edge" of the level

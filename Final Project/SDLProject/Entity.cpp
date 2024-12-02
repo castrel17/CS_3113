@@ -243,12 +243,11 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 //enemy hit player in the head
                 if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(m_attacking){
+                        m_invincible = true;
+                        m_invincible_timer = 2.5f;
                         collidable_entity->dec_lives();
-                        if(collidable_entity->get_lives() < 1){
-                            collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
-                            inc_stomp_count();
-                            std::cout<< "stomped enemy\n";
-                        }
+                        inc_stomp_count();
+                        std::cout<< "stomped enemy\n";
                     }else{
                         dec_lives();
                         if(get_lives() > 0){
@@ -276,12 +275,11 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 //if the player is attacking then the enemy dies, if not then the player loses a life
                 if(m_entity_type == PLAYER && !m_invincible && collidable_entity->get_entity_type() == ENEMY){
                     if(m_attacking){
+                        m_invincible = true;
+                        m_invincible_timer = 2.5f;
                         collidable_entity->dec_lives();
-                        if(collidable_entity->get_lives() < 1){
-                            collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
-                            inc_stomp_count();
-                            std::cout<< "stomped enemy\n";
-                        }
+                        inc_stomp_count();
+                        std::cout<< "stomped enemy\n";
                     }else{
                         dec_lives();
                         if(get_lives() > 0){
@@ -332,12 +330,11 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
             if(m_collided_left || m_collided_right){
                 if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(m_attacking){
+                        m_invincible = true;
+                        m_invincible_timer = 2.5f;
                         collidable_entity->dec_lives();
-                        if(collidable_entity->get_lives() < 1){
-                            collidable_entity->set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
-                            inc_stomp_count();
-                            std::cout<< "stomped enemy\n";
-                        }
+                        inc_stomp_count();
+                        std::cout<< "stomped enemy\n";
                     }else{
                         dec_lives();
                         if(get_lives() > 0){
@@ -475,15 +472,13 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             if(m_ai_type == JUMPER && m_is_jumping){
                 m_position.y += 0.14f * glm::cos(delta_time); //jumps up and down when the player is near
             }
-        }
-        
-        //timer for invincibility after getting hit by enemy
-        if(m_invincible){
-            m_invincible_timer -= delta_time;
-            if(m_invincible_timer <= 0){
-                m_invincible = false;
+            if(m_lives < 0){ //move off screen and deactivate once dead
+                set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
+                deactivate();
             }
         }
+        
+        
         if (m_animation_indices != NULL)
         {
             if (glm::length(m_movement) != 0)
@@ -504,7 +499,6 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             }
         }
         
-        
         m_velocity.x = m_movement.x * m_speed;
         m_velocity.y = m_movement.y * m_speed;
         m_velocity += m_acceleration * delta_time;
@@ -517,7 +511,14 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
         check_collision_x(collidable_entities, collidable_entity_count);
         check_collision_x(map);
         
-       // win lose stuff
+        //timer for invincibility after getting hit by enemy
+        if(m_invincible){
+            m_invincible_timer -= delta_time;
+            if(m_invincible_timer <= 0){
+                m_invincible = false;
+            }
+        }
+        //win lose stuff
         if(m_entity_type == PLAYER){
             //player wins if they are alive and killed all enemies
             if(get_lives() <= 0){
@@ -529,18 +530,18 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
                 deactivate();
             }
         }
-        if(m_entity_type == ORB){ //have it rotate around
-            m_rotation_angle += delta_time * 45.0f;
-            if (m_rotation_angle >= 360.0f) {
-                m_rotation_angle -= 360.0f;
-            }
-                m_model_matrix = glm::mat4(1.0f);
-                m_model_matrix = glm::translate(m_model_matrix, m_position);
-                m_model_matrix = glm::rotate(m_model_matrix, glm::radians(m_rotation_angle), glm::vec3(0.0f, 1.0f, 0.0f));
-                m_model_matrix = glm::scale(m_model_matrix, m_scale);
+        
+        if(m_entity_type == ORB){ //orb pulses and rotates
+            constexpr float BASE_SCALE = 1.0f,
+            MAX_AMPLITUDE = 0.05f;
+            m_rotation_angle += 90.0f * delta_time;
+            m_model_matrix = glm::translate(m_model_matrix, m_position);
+            m_scale.x = BASE_SCALE + MAX_AMPLITUDE * glm::sin(delta_time);
+            m_scale.y = BASE_SCALE + MAX_AMPLITUDE * glm::sin(delta_time);
         }
         m_model_matrix = glm::mat4(1.0f);
         m_model_matrix = glm::translate(m_model_matrix, m_position);
+        m_model_matrix = glm::rotate(m_model_matrix, glm::radians(m_rotation_angle), glm::vec3(1.0f, 1.0f, 1.0f));
         m_model_matrix = glm::scale(m_model_matrix, m_scale);
     }
 }
