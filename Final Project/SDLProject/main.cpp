@@ -215,10 +215,10 @@ void process_input()
         else if (key_state[SDL_SCANCODE_UP] && !pause_screen)  g_current_scene->get_state().player->move_up();
         else if (key_state[SDL_SCANCODE_DOWN] && !pause_screen)  g_current_scene->get_state().player->move_down();
    //player can't hold down space, they need to repeatedly press to attack
-    if (key_state[SDL_SCANCODE_SPACE] && !pause_screen && !key_pressed) {
+    if (key_state[SDL_SCANCODE_SPACE] && !pause_screen && !key_pressed && key_pressed_timer == 0.0f) {
         g_effects->start(SHAKE, 1.0f);
         g_current_scene->get_state().player->attacking(true);
-        key_pressed_timer = 1.0f;
+        key_pressed_timer = 0.5f;
         key_pressed = true;
     }else if(!key_state[SDL_SCANCODE_SPACE] && !pause_screen){
         g_effects->start(NONE);
@@ -256,6 +256,7 @@ void update()
         
         if(key_pressed_timer <= 0){
             key_pressed = false;
+            key_pressed_timer = 0;
         }
     }
     g_accumulator = delta_time;

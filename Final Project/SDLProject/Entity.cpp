@@ -244,7 +244,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(m_attacking){
                         m_invincible = true;
-                        m_invincible_timer = 2.5f;
+                        m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
                         inc_stomp_count();
                         std::cout<< "stomped enemy\n";
@@ -252,7 +252,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                         dec_lives();
                         if(get_lives() > 0){
                             m_invincible = true;
-                            m_invincible_timer = 3.5f;
+                            m_invincible_timer = 1.5f;
                             std::cout<< "hit 1\n";
                         }else{
                             std::cout<< "hit & died 1\n";
@@ -276,7 +276,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 if(m_entity_type == PLAYER && !m_invincible && collidable_entity->get_entity_type() == ENEMY){
                     if(m_attacking){
                         m_invincible = true;
-                        m_invincible_timer = 2.5f;
+                        m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
                         inc_stomp_count();
                         std::cout<< "stomped enemy\n";
@@ -284,7 +284,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                         dec_lives();
                         if(get_lives() > 0){
                             m_invincible = true;
-                            m_invincible_timer = 3.5f;
+                            m_invincible_timer = 1.5f;
                             std::cout<< "hit 2\n";
                         }else{
                             std::cout<< "hit & died 2\n";
@@ -331,7 +331,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                 if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(m_attacking){
                         m_invincible = true;
-                        m_invincible_timer = 2.5f;
+                        m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
                         inc_stomp_count();
                         std::cout<< "stomped enemy\n";
@@ -339,7 +339,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                         dec_lives();
                         if(get_lives() > 0){
                             m_invincible = true;
-                            m_invincible_timer = 3.5f;
+                            m_invincible_timer = 1.5f;
                             std::cout<< "hit 3\n";
                         }else{
                             game_over = true;
