@@ -186,10 +186,11 @@ void process_input()
                         // Quit the game with a keystroke
                         g_app_status = TERMINATED;
                         break;
-                    case SDLK_RETURN:// go to the next scene from the main menu
-                        if(g_current_scene == g_menu){
-                            switch_to_scene(g_levels[0], 3);
-                        }
+                    case SDLK_RETURN://this key lets you advance to the next level
+                        if(g_current_scene == g_menu)switch_to_scene(g_levels[0], curr_lives);
+                        else if (g_current_scene == g_levelA) switch_to_scene(g_levelB, curr_lives);
+                        else if (g_current_scene == g_levelB) switch_to_scene(g_levelC, curr_lives);
+                        else switch_to_scene(g_menu, curr_lives);
                         break;
                     case SDLK_ESCAPE: //this is the pause button
                         if(!pause_screen){
@@ -199,6 +200,11 @@ void process_input()
                             pause_screen = false;
                             g_current_scene->set_pause_screen(pause_screen);
                         }
+                        break;
+                    case SDLK_TAB: //this key lets you move to the previous level
+                        if (g_current_scene == g_levelA) switch_to_scene(g_menu, curr_lives);
+                        else if (g_current_scene == g_levelB) switch_to_scene(g_levelA, curr_lives);
+                        else switch_to_scene(g_levelB, curr_lives);
                         break;
                     default:
                         break;
@@ -224,10 +230,9 @@ void process_input()
         g_effects->start(NONE);
         g_current_scene->get_state().player->attacking(false);
     }
-    
+
     if (glm::length( g_current_scene->get_state().player->get_movement()) > 1.0f)
         g_current_scene->get_state().player->normalise_movement();
-    
 }
 
 void update()

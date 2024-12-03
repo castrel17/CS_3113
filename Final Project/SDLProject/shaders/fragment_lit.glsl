@@ -7,7 +7,7 @@ uniform int spotlight_on;
 
 float attenuate(float dist, float a, float b)
 {
-     return 0.7 / (1.0 + (a * dist) + (b * dist  * dist));
+     return 0.5 / (1.0 + (a * dist) + (b * dist  * dist));
 }
 
 void main()

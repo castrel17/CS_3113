@@ -5,7 +5,7 @@
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
 enum EntityType { PLATFORM, PLAYER, ENEMY, LIVES, ORB };
-enum AIType     { GUARD, JUMPER}; //
+enum AIType     { GUARD, CYCLONE, SHOOTER}; 
 enum AIState    { WALKING, IDLE, ATTACKING, JUMPING};
 enum Lives{THREE, TWO, ONE, ZERO};
 enum Animation {WALK, ATTACK};
@@ -71,6 +71,7 @@ private:
     //kill cool down for player and enemy
     bool m_invincible = false;
     float m_invincible_timer = 0.0f;
+    bool m_stomped = false;
     
 public:
     // ————— STATIC VARIABLES ————— //
@@ -102,7 +103,7 @@ public:
 
     void ai_activate(Entity *player, float delta_time);
     void ai_walk();
-    void ai_jump(Entity *player, float delta_time);
+    void ai_spin(Entity *player, float delta_time);
     void ai_guard(Entity *player);
     void pit_detection(Map *map);
     
@@ -143,6 +144,7 @@ public:
     bool      const get_on_screen() const { return m_on_screen; }
     bool      const get_invincible() const { return m_invincible; }
     int      const get_lives() const { return m_lives; }
+    bool     const get_stomped() const { return m_stomped; }
     
     void activate()   { m_is_active = true;  };
     void deactivate() { m_is_active = false; };
@@ -174,6 +176,7 @@ public:
     void const set_lives(int new_lives){m_lives = new_lives;}
     void const set_hit_orb(bool new_status){m_hit_orb = new_status;}
     void const set_invincible(bool new_status) { m_invincible = new_status; }
+    void const set_stomped(bool new_status) {m_stomped = new_status; }
     void dec_lives() {m_lives--;}
     // Setter for m_walking
     void set_walking(int walking[4][4])

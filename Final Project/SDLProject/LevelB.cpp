@@ -9,16 +9,22 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/black.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
+
+//orb spawns in the center of the city when all the enemies are killed in a certain order
+//the hint is
 unsigned int LEVELB_DATA[] = {
     5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
-    1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3,
-    5, 0, 4, 0, 3, 2, 4, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 4,
-    4, 0, 3, 0, 0, 0, 3, 0, 2, 3, 3, 1, 1, 0, 0, 3, 0, 3, 0, 5,
-    3, 0, 2, 0, 1, 0, 2, 0, 0, 0, 1, 1, 1, 1, 0, 4, 0, 1, 0, 1,
-    2, 0, 1, 2, 1, 0, 2, 2, 2, 0, 1, 1, 1, 1, 0, 5, 0, 2, 0, 2,
-    1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
+    5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4,
+    4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
     5, 3, 4, 5, 4, 3, 4, 5, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
+
+std::vector<int> expected_kill_order = {0, 1, 2};
+std::vector<int> actual_kill_order;
 
 LevelB::~LevelB()
 {
@@ -71,15 +77,16 @@ void LevelB::initialise()
     // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
     
-    GLuint ai1_texture_id = Utility::load_texture(AI1_FILEPATH);
+    GLuint enemy_texture_id = Utility::load_texture(AI1_FILEPATH);
     
-    m_game_state.enemies[0] =  Entity(ai1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
-    m_game_state.enemies[0].set_entity_type(ENEMY);
-    m_game_state.enemies[0].set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
-    m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platform
-    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
-    m_game_state.enemies[0].set_lives(5);
+    for(int i = 0; i < ENEMY_COUNT; i++){
+        m_game_state.enemies[i] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, CYCLONE, IDLE);
+        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
+        m_game_state.enemies[i].set_lives(5);
+    }
+    m_game_state.enemies[0].set_position(glm::vec3(1.0f, -4.0f, 0.0f)); //spawn on platforms
+    m_game_state.enemies[1].set_position(glm::vec3(10.0f, -1.0f, 0.0f));
+    m_game_state.enemies[2].set_position(glm::vec3(10.0f, -4.0f, 0.0f));
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
@@ -107,8 +114,31 @@ void LevelB::update(float delta_time)
             m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
         }
         
-        for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
-                                                                             m_game_state.map, m_game_state.orb);
+        if(ENEMY_COUNT == stomped){
+            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
+        }
+        
+        for (int i = 0; i < ENEMY_COUNT; i++) {
+            m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
+            if (m_game_state.enemies[i].get_lives() <= 0 && !m_game_state.enemies[i].get_stomped()) {
+                stomped++;
+                m_game_state.enemies[i].set_stomped(true);
+                actual_kill_order.push_back(i);
+                //check kill order
+                if (actual_kill_order.size() <= expected_kill_order.size() && actual_kill_order.back() != expected_kill_order[actual_kill_order.size() - 1]) {
+                    reset_level = true;
+                }
+            }         
+        }
+        
+        
+        if (reset_level) { //reset the level if not killed in order
+            reset_level = false;
+            stomped = 0;
+            actual_kill_order.clear();
+            initialise();
+        }
+        
         m_game_state.lives = m_game_state.player->get_lives();
         if (m_game_state.orb->get_hit_orb()) { //only advance the player when it hits the orb
             m_game_state.player->set_hit_orb(false);
@@ -129,9 +159,10 @@ void LevelB::render(ShaderProgram *program)
     m_game_state.enemies->render(program);
     
     //only render the orb when all enemies are killed
-    if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
+    if(ENEMY_COUNT == stomped){
         m_game_state.orb->render(program);
     }
+    
     int lives = m_game_state.player->get_lives();
     glm::vec3 player_pos = m_game_state.player->get_position();
     

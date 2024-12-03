@@ -19,7 +19,6 @@ unsigned int LEVELA_DATA[] = {
     1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
     5, 3, 4, 5, 4, 3, 4, 5, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
-
 LevelA::~LevelA()
 {
     Mix_FreeMusic(m_game_state.bgm);
@@ -71,15 +70,16 @@ void LevelA::initialise()
     // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
     
-    GLuint ai1_texture_id = Utility::load_texture(AI1_FILEPATH);
+    GLuint enemy_texture_id = Utility::load_texture(AI1_FILEPATH);
     
-    m_game_state.enemies[0] =  Entity(ai1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
-    m_game_state.enemies[0].set_entity_type(ENEMY);
-    m_game_state.enemies[0].set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
-    m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platform
-    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
-    m_game_state.enemies[0].set_lives(5);
+    for(int i = 0; i < ENEMY_COUNT; i++){
+        m_game_state.enemies[i] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
+        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
+        m_game_state.enemies[i].set_lives(4);
+    }
+    m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platforms
+    m_game_state.enemies[1].set_position(glm::vec3(4.0f, -1.0f, 0.0f));
+    
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
@@ -101,14 +101,20 @@ void LevelA::initialise()
 void LevelA::update(float delta_time)
 {
     if(!m_game_state.pause_screen){
+       // std::cout << std::to_string(m_game_state.player->get_stomp_count()) << "\n";
         m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
         
-        if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
+        if(ENEMY_COUNT == stomped){
             m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
         }
         
-        for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
-                                                                             m_game_state.map, m_game_state.orb);
+        for (int i = 0; i < ENEMY_COUNT; i++){
+            m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
+            if(m_game_state.enemies[i].get_lives()<=0 && !m_game_state.enemies[i].get_stomped()){
+                stomped++;
+                m_game_state.enemies[i].set_stomped(true);
+            }
+        }
         m_game_state.lives = m_game_state.player->get_lives();
         if (m_game_state.orb->get_hit_orb()) { //only advance the player when it hits the orb
             m_game_state.player->set_hit_orb(false);
@@ -126,10 +132,10 @@ void LevelA::render(ShaderProgram *program)
 {
     m_game_state.map->render(program);
     m_game_state.player->render(program);
-    m_game_state.enemies->render(program);
+    for (int i = 0; i < ENEMY_COUNT; i++)    m_game_state.enemies[i].render(program);
     
     //only render the orb when all enemies are killed
-    if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
+    if(ENEMY_COUNT == stomped){
         m_game_state.orb->render(program);
     }
     int lives = m_game_state.player->get_lives();

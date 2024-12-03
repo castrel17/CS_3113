@@ -30,10 +30,11 @@ void Entity::ai_activate(Entity *player,float delta_time)
             ai_guard(player);
             break;
             
-        case JUMPER:
-            ai_jump(player, delta_time);
+        case CYCLONE:
+            ai_spin(player, delta_time);
             break;
-        
+        case SHOOTER:
+            break;
         default:
             break;
     }
@@ -45,7 +46,7 @@ void Entity::ai_walk()
 }
 
 //this needs to oscillate with delta_time
-void Entity::ai_jump(Entity *player, float delta_time)
+void Entity::ai_spin(Entity *player, float delta_time)
 {
     switch (m_ai_state) {
         case IDLE://always jumping
@@ -81,7 +82,7 @@ void Entity::ai_guard(Entity *player)
                 }
             }
             break;
-        case WALKING://if the guard is about to hit the edge of the platform then have it switch directions
+        case WALKING:
             if (m_position.x > player->get_position().x) { //move left
                 if(!is_about_to_fall_left){
                     m_movement = glm::vec3(-1.0f, 0.0f, 0.0f);
@@ -246,8 +247,6 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                         m_invincible = true;
                         m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
-                        inc_stomp_count();
-                        std::cout<< "stomped enemy\n";
                     }else{
                         dec_lives();
                         if(get_lives() > 0){
@@ -278,8 +277,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                         m_invincible = true;
                         m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
-                        inc_stomp_count();
-                        std::cout<< "stomped enemy\n";
+                    
                     }else{
                         dec_lives();
                         if(get_lives() > 0){
@@ -333,8 +331,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                         m_invincible = true;
                         m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
-                        inc_stomp_count();
-                        std::cout<< "stomped enemy\n";
+
                     }else{
                         dec_lives();
                         if(get_lives() > 0){
@@ -468,9 +465,6 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             ai_activate(player, delta_time);
             if(m_ai_type == GUARD){
                 pit_detection(map);
-            }
-            if(m_ai_type == JUMPER && m_is_jumping){
-                m_position.y += 0.14f * glm::cos(delta_time); //jumps up and down when the player is near
             }
             if(m_lives < 0){ //move off screen and deactivate once dead
                 set_position(glm::vec3(-10.0f, 0.0f, 0.0f));

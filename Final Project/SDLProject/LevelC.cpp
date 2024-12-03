@@ -9,17 +9,21 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/black.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
+//three zones with three separate AI in varying difficulty that the player needs to fight off
+//first enemy is guard with health of 4 --> rat
+//second enemy is the cyclone with health of 5 --> drone
+//third enemy is the shooter with health of 7 --> robocop
 unsigned int LEVELC_DATA[] = {
     5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
-    1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3,
-    5, 0, 4, 0, 3, 2, 4, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 4,
-    4, 0, 3, 0, 0, 0, 3, 0, 2, 3, 3, 1, 1, 0, 0, 3, 0, 3, 0, 5,
-    3, 0, 2, 0, 1, 0, 2, 0, 0, 0, 1, 1, 1, 1, 0, 4, 0, 1, 0, 1,
-    2, 0, 1, 2, 1, 0, 2, 2, 2, 0, 1, 1, 1, 1, 0, 5, 0, 2, 0, 2,
-    1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
+    1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 3,
+    5, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 4,
+    4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 5,
+    3, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1,
+    2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    1, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
     5, 3, 4, 5, 4, 3, 4, 5, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
-
+int stomped = 0;
 LevelC::~LevelC()
 {
     Mix_FreeMusic(m_game_state.bgm);
@@ -107,8 +111,17 @@ void LevelC::update(float delta_time)
             m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
         }
         
-        for (int i = 0; i < ENEMY_COUNT; i++) m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0,
-                                                                             m_game_state.map, m_game_state.orb);
+        if(ENEMY_COUNT == stomped){
+            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
+        }
+        
+        for (int i = 0; i < ENEMY_COUNT; i++){
+            m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
+            if(m_game_state.enemies[i].get_lives()<=0 && !m_game_state.enemies[i].get_stomped()){
+                stomped++;
+                m_game_state.enemies[i].set_stomped(true);
+            }
+        }
         m_game_state.lives = m_game_state.player->get_lives();
         
         if (m_game_state.player->get_game_status() && !m_game_state.sound_played) {
@@ -135,7 +148,7 @@ void LevelC::render(ShaderProgram *program)
     m_game_state.enemies->render(program);
     
     //only render the orb when all enemies are killed
-    if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
+    if(ENEMY_COUNT == stomped){
         m_game_state.orb->render(program);
     }
     int lives = m_game_state.player->get_lives();

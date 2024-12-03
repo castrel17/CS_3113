@@ -4,6 +4,8 @@ class LevelB : public Scene {
 public:
     int ENEMY_COUNT = 3;
     int lives = 3;
+    bool reset_level = false;
+    int stomped = 0;
     ~LevelB();
     
     void initialise() override;

@@ -2,7 +2,9 @@
 
 class LevelA : public Scene {
 public:
-    int ENEMY_COUNT = 1;
+    int ENEMY_COUNT = 2;
+    bool reset_level = false;
+    int stomped = 0;
     ~LevelA();
     
     void initialise() override;
