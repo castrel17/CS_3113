@@ -61,7 +61,7 @@ void Entity::ai_spin(Entity *player, float delta_time)
                 float distance = glm::length(direction_away);
                 if (distance > 0.0f) {
                     direction_away = glm::normalize(direction_away);
-                    m_movement = direction_away * 0.5f;
+                    m_movement = direction_away * 0.75f;
                 }
             }
             break;

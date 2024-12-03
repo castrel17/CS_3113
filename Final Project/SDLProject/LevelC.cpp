@@ -5,7 +5,9 @@
 #define LEVEL_HEIGHT 8
 
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
-           AI1_FILEPATH[]       = "assets/images/onion.png",
+           ENEMY1_FILEPATH[]       = "assets/images/drone1.png",
+            ENEMY2_FILEPATH[]       = "assets/images/drone2.png",
+            ENEMY3_FILEPATH[]       = "assets/images/drone3.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
@@ -78,19 +80,27 @@ void LevelC::initialise()
     );
     m_game_state.player->set_position(glm::vec3(1.0f, -1.0f, 0.0f));
     m_game_state.player->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
+    m_game_state.player->set_lives(m_game_state.lives);
+    
     /**Enemies' stuff */
-    // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
     
-    GLuint ai1_texture_id = Utility::load_texture(AI1_FILEPATH);
+    GLuint enemy1_texture_id = Utility::load_texture(ENEMY1_FILEPATH); //E
+    GLuint enemy2_texture_id = Utility::load_texture(ENEMY2_FILEPATH); //T
+    GLuint enemy3_texture_id = Utility::load_texture(ENEMY3_FILEPATH); //C
+    m_game_state.enemies[0] =  Entity(enemy1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
+    m_game_state.enemies[1] =  Entity(enemy2_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
+    m_game_state.enemies[2] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
     
-    m_game_state.enemies[0] =  Entity(ai1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
-    m_game_state.enemies[0].set_entity_type(ENEMY);
-    m_game_state.enemies[0].set_scale(glm::vec3(0.8f, 0.8f, 0.0f));
-    m_game_state.enemies[0].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platform
-    m_game_state.enemies[0].set_acceleration(glm::vec3(0.0f, -9.81f, 0.0f));
-    m_game_state.enemies[0].set_lives(5);
+    for(int i = 0; i < ENEMY_COUNT; i++){
+        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
+        m_game_state.enemies[i].set_lives(4);
+        m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
+    }
+    
+    m_game_state.enemies[2].set_position(glm::vec3(1.5f, -3.5f, 0.0f));
+    m_game_state.enemies[1].set_position(glm::vec3(15.5f, -1.0f, 0.0f));
+    m_game_state.enemies[0].set_position(glm::vec3(8.5f, -5.5f, 0.0f));
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
@@ -105,12 +115,12 @@ void LevelC::initialise()
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
-    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/enemy.wav");
     m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
 }
 
 void LevelC::update(float delta_time)
-{
+{//lose if the player runs out of lives before hitting the orb
     if(!m_game_state.pause_screen){
         m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
         
@@ -132,16 +142,11 @@ void LevelC::update(float delta_time)
         }
         m_game_state.lives = m_game_state.player->get_lives();
         
-        if (m_game_state.player->get_game_status() && !m_game_state.sound_played) {
-            Mix_PlayChannel(-1, m_game_state.lose_sfx, 0);
-            m_game_state.sound_played = true;
-        }
-        
-        if (m_game_state.player->get_game_status() && !m_game_state.sound_played) {
+        if (!m_game_state.sound_played) {
             if(m_game_state.orb->get_hit_orb()){
                 Mix_PlayChannel(-1, m_game_state.win_sfx, 0);
                 m_game_state.sound_played = true;
-            }else{
+            }else if(!m_game_state.orb->get_hit_orb() && m_game_state.player->get_lives() <= 0){
                 Mix_PlayChannel(-1, m_game_state.lose_sfx, 0);
                 m_game_state.sound_played = true;
             }

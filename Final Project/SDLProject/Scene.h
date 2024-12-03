@@ -33,6 +33,7 @@ struct GameState
     Mix_Chunk *stomp_sfx;
     Mix_Chunk *lose_sfx;
     Mix_Chunk *win_sfx;
+    Mix_Chunk *next_level_sfx;
     bool sound_played = false;
     GLuint font;
     

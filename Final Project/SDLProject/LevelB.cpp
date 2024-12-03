@@ -82,6 +82,7 @@ void LevelB::initialise()
     );
     m_game_state.player->set_position(glm::vec3(1.0f, -1.0f, 0.0f));
     m_game_state.player->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
+    m_game_state.player->set_lives(m_game_state.lives);
     /**Enemies' stuff */
     // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
@@ -99,9 +100,9 @@ void LevelB::initialise()
         m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
     }
     
-    m_game_state.enemies[2].set_position(glm::vec3(1.5f, -5.5f, 0.0f)); //bottom left
-    m_game_state.enemies[1].set_position(glm::vec3(17.5f, -1.0f, 0.0f)); //top right
-    m_game_state.enemies[0].set_position(glm::vec3(17.5f, -5.5f, 0.0f)); //bottom right
+    m_game_state.enemies[2].set_position(glm::vec3(1.5f, -3.5f, 0.0f));
+    m_game_state.enemies[1].set_position(glm::vec3(15.5f, -1.0f, 0.0f));
+    m_game_state.enemies[0].set_position(glm::vec3(8.5f, -5.5f, 0.0f));
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
@@ -116,8 +117,9 @@ void LevelB::initialise()
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
-    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/enemy.wav");
     m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
+    m_game_state.next_level_sfx= Mix_LoadWAV("assets/audio/next_level.mp3");
 }
 
 void LevelB::update(float delta_time)
@@ -153,7 +155,7 @@ void LevelB::update(float delta_time)
         
         m_game_state.lives = m_game_state.player->get_lives();
         if (m_game_state.orb->get_hit_orb()) { //only advance the player when it hits the orb
-            m_game_state.player->set_hit_orb(false);
+            Mix_PlayChannel(-1, m_game_state.next_level_sfx, 0);
             m_game_state.next_scene_id = 1;
         }
         

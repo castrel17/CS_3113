@@ -102,8 +102,9 @@ void LevelA::initialise()
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
-    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/enemy.wav");
     m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
+    m_game_state.next_level_sfx= Mix_LoadWAV("assets/audio/next_level.mp3");
 }
 
 void LevelA::update(float delta_time)
@@ -125,7 +126,7 @@ void LevelA::update(float delta_time)
         }
         m_game_state.lives = m_game_state.player->get_lives();
         if (m_game_state.orb->get_hit_orb()) { //only advance the player when it hits the orb
-            m_game_state.player->set_hit_orb(false);
+            Mix_PlayChannel(-1, m_game_state.next_level_sfx, 0);
             m_game_state.next_scene_id = 1;
         }
         

@@ -1,7 +1,7 @@
 /**
 * Author: Elizabeth
-* Assignment: [Your game's name here]
-* Date due: [Your presentation date], 2:00pm
+* Assignment: Escape the City
+* Date due: 12/6/2024, 2:00pm
 * I pledge that I have completed this assignment without
 * collaborating with anyone else, in conformance with the
 * NYU School of Engineering Policies and Procedures on
@@ -12,8 +12,8 @@
  BGM1: https://pixabay.com/users/ihatetuesdays-39387169/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=259885
  BGM3: https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=265979
  Tiles:https://o-lobster.itch.io/adventure-pack/download/eyJpZCI6MTA3MjQ0OCwiZXhwaXJlcyI6MTczMjQwMjk0N30%3d.1kcxIu%2bN%2fRUJamoXPZD0TqIGlY4%3d
- 
- 
+ Next level: https://pixabay.com/users/ribhavagrawal-39286533/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=230515
+ Enemy Dying: https://freesound.org/people/Mrthenoronha/sounds/514292/
  https://gumpyfunction.itch.io/game-boy-rpg-fantasy-tileset-free?download
  Sprites: https://opengameart.org/content/simple-character-base-16x16
  */
@@ -68,7 +68,7 @@ bool pause_screen = false; //false = not paused
 bool key_pressed = false;
 float key_pressed_timer = 0.0f;
 constexpr float MILLISECONDS_IN_SECOND = 1000.0;
-int curr_lives = 3;
+int curr_lives;
 enum AppStatus { RUNNING, TERMINATED };
 
 // ––––– GLOBAL VARIABLES ––––– //
@@ -78,7 +78,7 @@ LevelB *g_levelB;
 LevelC *g_levelC;
 
 Effects *g_effects;
-Scene   *g_levels[3];
+Scene   *g_levels[4];
 Menu *g_menu;
 
 SDL_Window* g_display_window;
@@ -106,6 +106,7 @@ void shutdown();
 // ––––– GENERAL FUNCTIONS ––––– //
 void switch_to_scene(Scene *scene, int curr_lives)
 {
+    std::cout << "Switching to scene " << scene << " with lives: " << curr_lives << std::endl;
     g_current_scene = scene;
     scene->set_num_lives(curr_lives);
     g_current_scene->initialise(); // DON'T FORGET THIS STEP!
@@ -159,7 +160,7 @@ void initialise()
     
     g_menu = new Menu();
 
-    // Start at maine menu
+    // Start at main menu
     switch_to_scene(g_menu, 0);
     
     g_effects = new Effects(g_projection_matrix, g_view_matrix);
@@ -188,8 +189,8 @@ void process_input()
                         break;
                     case SDLK_RETURN://this key lets you advance to the next level
                         if(g_current_scene == g_menu)switch_to_scene(g_levels[0], curr_lives);
-                        else if (g_current_scene == g_levelA) switch_to_scene(g_levelB, curr_lives);
-                        else if (g_current_scene == g_levelB) switch_to_scene(g_levelC, curr_lives);
+                        else if (g_current_scene == g_levelA) switch_to_scene(g_levels[1], curr_lives);
+                        else if (g_current_scene == g_levelB) switch_to_scene(g_levels[2], curr_lives);
                         else switch_to_scene(g_menu, curr_lives);
                         break;
                     case SDLK_ESCAPE: //this is the pause button
@@ -276,12 +277,13 @@ void update()
         } else {
             g_view_matrix = glm::translate(g_view_matrix, glm::vec3(-5, 3.75, 0));
         }
-        curr_lives = g_current_scene->get_num_lives();
-        
-        if (g_current_scene == g_levelA && g_current_scene->get_state().player->get_position().y < -10.0f) switch_to_scene(g_levelB, curr_lives);
-        if (g_current_scene == g_levelB && g_current_scene->get_state().player->get_position().y < -10.0f && g_current_scene->get_state().player->get_position().x > 4.0f  ) switch_to_scene(g_levelC, curr_lives);
 
-        
+        curr_lives = g_current_scene->get_state().player->get_lives();
+        if (g_current_scene == g_levelA && g_current_scene->get_state().orb->get_hit_orb()) {
+            switch_to_scene(g_levels[1], curr_lives);
+        } else if (g_current_scene == g_levelB && g_current_scene->get_state().orb->get_hit_orb()) {
+            switch_to_scene(g_levels[2], curr_lives);
+        }
         g_view_matrix = glm::translate(g_view_matrix, g_effects->get_view_offset());
         
     }
@@ -322,7 +324,6 @@ int main(int argc, char* argv[])
         update();
         
         if (g_current_scene->get_state().next_scene_id >= 0){
-            curr_lives = g_current_scene->get_num_lives();
             switch_to_scene(g_levels[g_current_scene->get_state().next_scene_id], curr_lives);
         }
         
