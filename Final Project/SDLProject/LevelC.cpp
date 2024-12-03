@@ -4,7 +4,7 @@
 #define LEVEL_WIDTH 20
 #define LEVEL_HEIGHT 8
 
-constexpr char SPRITESHEET_FILEPATH[] = "assets/images/black.png",
+constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
            AI1_FILEPATH[]       = "assets/images/onion.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
@@ -44,12 +44,18 @@ void LevelC::initialise()
     
     int player_walking_animation[4][4] =
     {
-        {12,13,14,15},  //left
-        {8,9,10,11}, //right
-        {4,5,6,7}, //up
+        {24,25,26,27},  //left
+        {16,17,18,19}, //right
+        {8,9,10,11}, //up
         {0,1,2,3} ,//down
     };
-
+    int player_attacking_animation[4][4] =
+    {
+        {28,29,30,31},  //left
+        {20,21,22,23}, //right
+        {12,13,14,15}, //up
+        {4,5,6,7} ,//down
+    };
     glm::vec3 acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
     
     GLuint player_texture_id = Utility::load_texture(SPRITESHEET_FILEPATH);
@@ -60,11 +66,12 @@ void LevelC::initialise()
            acceleration,              // acceleration
            3.0f,                      // jumping power
            player_walking_animation,  // animation index sets
+           player_attacking_animation,
            0.0f,                      // animation time
            3,                         // animation frame amount
            0,                         // current animation index
            4,                         // animation column amount
-           4,                         // animation row amount
+           8,                         // animation row amount
            0.4f,                      // width
            0.4f,                       // height
            PLAYER

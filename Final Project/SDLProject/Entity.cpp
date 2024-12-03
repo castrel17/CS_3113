@@ -53,11 +53,6 @@ void Entity::ai_spin(Entity *player, float delta_time)
             m_ai_state = JUMPING;
             break;
         case JUMPING:
-            if(get_collided_bottom()){
-                m_animation_indices = m_jumping_animation[GROUND];
-            }else{
-                m_animation_indices = m_jumping_animation[AIR];
-            }
             m_is_jumping = true;
             break;
         case ATTACKING:
@@ -122,7 +117,7 @@ Entity::Entity()
 }
 
 // Parameterized constructor
-Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
+Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], int attacking[4][4], float animation_time,
     int animation_frames, int animation_index, int animation_cols,
     int animation_rows, float width, float height, EntityType EntityType)
     : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
@@ -133,7 +128,7 @@ Entity::Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jum
     m_width(width), m_height(height), m_entity_type(EntityType)
 {
     face_right();
-    set_walking(walking);
+    set_walking(walking, attacking);
 }
 
 // Simpler constructor for partial initialization
@@ -209,11 +204,15 @@ void Entity::draw_sprite_from_texture_atlas(ShaderProgram* program, GLuint textu
     glDisableVertexAttribArray(program->get_tex_coordinate_attribute());
 }
 
-void Entity::set_animation_state(AnimationDirection direction, bool is_attacking) {
-    int index = is_attacking ? direction + 1 : direction;
-    m_animation_indices = m_walking[index];
-    m_animation_index = 0;
-    m_animation_time = 0.0f;
+void Entity::set_animation_state(Animation new_animation) {
+    if (new_animation == ATTACK) {
+        m_attacking = true;
+        m_animation_indices = m_attacking_animation[m_current_direction];
+        m_animation_index = 0;
+    } else {
+        m_attacking = false;
+        m_animation_indices = m_walking[m_current_direction];
+    }
 }
 
 bool const Entity::check_collision(Entity* other) const
@@ -473,26 +472,6 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
         }
         
         
-        if (m_animation_indices != NULL)
-        {
-            if (glm::length(m_movement) != 0)
-            {
-                m_animation_time += delta_time;
-                float frames_per_second = (float) 1 / SECONDS_PER_FRAME;
-                
-                if (m_animation_time >= frames_per_second)
-                {
-                    m_animation_time = 0.0f;
-                    m_animation_index++;
-                    
-                    if (m_animation_index >= m_animation_frames)
-                    {
-                        m_animation_index = 0;
-                    }
-                }
-            }
-        }
-        
         m_velocity.x = m_movement.x * m_speed;
         m_velocity.y = m_movement.y * m_speed;
         m_velocity += m_acceleration * delta_time;
@@ -514,6 +493,32 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
         }
         //win lose stuff
         if(m_entity_type == PLAYER){
+            if (m_attacking) {
+                    m_animation_indices = m_attacking_animation[m_current_direction];
+                    m_animation_time += delta_time;
+
+                    float frames_per_second = 1.0f / SECONDS_PER_FRAME;
+                    if (m_animation_time >= frames_per_second) {
+                        m_animation_time = 0.0f;
+                        m_animation_index++;
+
+                        if (m_animation_index >= 4) {
+                            m_animation_index = 0;
+                            m_attacking = false;
+                            m_animation_indices = m_walking[m_current_direction];
+                        }
+                    }
+                } else { //walking
+                    if (glm::length(m_movement) > 0.0f) {
+                        m_animation_time += delta_time;
+
+                        float frames_per_second = 1.0f / SECONDS_PER_FRAME;
+                        if (m_animation_time >= frames_per_second) {
+                            m_animation_time = 0.0f;
+                            m_animation_index = (m_animation_index + 1) % 4; // Loop through walking frames
+                        }
+                    }
+                }
             //player wins if they are alive and killed all enemies
             if(get_lives() <= 0){
                 game_over = true;

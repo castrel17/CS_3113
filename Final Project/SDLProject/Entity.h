@@ -18,8 +18,7 @@ private:
     bool m_is_active = true;
     
     int m_walking[4][4];
-
-    int m_jumping_animation[2][1];
+    int m_attacking_animation[4][4];
     
     EntityType m_entity_type;
     AIType     m_ai_type;
@@ -51,6 +50,7 @@ private:
 
     int* m_animation_indices = nullptr;
     float m_animation_time = 0.0f;
+    AnimationDirection m_current_direction = DOWN;
 
     float m_width = 1.0f,
           m_height = 1.0f;
@@ -79,7 +79,7 @@ public:
 
     // ————— METHODS ————— //
     Entity();
-    Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], float animation_time,
+    Entity(GLuint texture_id, float speed, glm::vec3 acceleration, float jump_power, int walking[4][4], int attacking[4][4], float animation_time,
         int animation_frames, int animation_index, int animation_cols,
            int animation_rows, float width, float height, EntityType EntityType);
     Entity(GLuint texture_id, float speed, float width, float height, EntityType EntityType); // Simpler constructor
@@ -109,10 +109,16 @@ public:
     
     void normalise_movement() { m_movement = glm::normalize(m_movement); }
 
-    void face_left() { m_animation_indices = m_walking[LEFT]; }
-    void face_right() { m_animation_indices = m_walking[RIGHT]; }
-    void face_up() { m_animation_indices = m_walking[UP]; }
-    void face_down() { m_animation_indices = m_walking[DOWN]; }
+    void face_left() { m_animation_indices = m_walking[LEFT]; m_current_direction = LEFT; set_animation_state(WALK);}
+    void face_right() { m_animation_indices = m_walking[RIGHT]; m_current_direction = RIGHT;set_animation_state(WALK);}
+    void face_up() { m_animation_indices = m_walking[UP]; m_current_direction = UP;set_animation_state(WALK);}
+    void face_down() { m_animation_indices = m_walking[DOWN]; m_current_direction = DOWN;set_animation_state(WALK);}
+    
+    //direction attacking
+    void attack_left()  { m_current_direction = LEFT;  set_animation_state(ATTACK); }
+    void attack_right() { m_current_direction = RIGHT; set_animation_state(ATTACK); }
+    void attack_up()    { m_current_direction = UP;    set_animation_state(ATTACK); }
+    void attack_down()  { m_current_direction = DOWN;  set_animation_state(ATTACK); }
 
     void move_left() { m_movement.x = -1.0f; face_left(); }
     void move_right() { m_movement.x = 1.0f;  face_right(); }
@@ -166,7 +172,7 @@ public:
     void const set_animation_frames(int new_frames) { m_animation_frames = new_frames; }
     void const set_animation_index(int new_index) { m_animation_index = new_index; }
     void const set_animation_time(float new_time) { m_animation_time = new_time; }
-    void set_animation_state(AnimationDirection direction, bool is_attacking);
+    void set_animation_state(Animation new_animation);
     void const set_jumping_power(float new_jumping_power) { m_jumping_power = new_jumping_power;}
     void const set_width(float new_width) {m_width = new_width; }
     void const set_height(float new_height) {m_height = new_height; }
@@ -179,23 +185,23 @@ public:
     void const set_stomped(bool new_status) {m_stomped = new_status; }
     void dec_lives() {m_lives--;}
     // Setter for m_walking
-    void set_walking(int walking[4][4])
+    void set_walking(int walking[4][4], int attacking[4][4])
     {
         for (int i = 0; i < 4; ++i)
         {
             for (int j = 0; j < 4; ++j)
             {
                 m_walking[i][j] = walking[i][j];
+                m_attacking_animation[i][j] = attacking[i][j];
             }
         }
     }
     
-    void set_jumping(int jumping[2][1]){
-        for (int i = 0; i < 2; ++i) {
-            for (int j = 0; j < 1; ++j) {
-                m_jumping_animation[i][j] = jumping[i][j];
-            }
-        }
+    void set_attacking(int attacking[4][4])
+    {
+        for (int i = 0; i < 4; ++i)
+            for (int j = 0; j < 4; ++j)
+                m_attacking_animation[i][j] = attacking[i][j];
     }
 };
 

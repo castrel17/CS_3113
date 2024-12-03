@@ -4,14 +4,16 @@
 #define LEVEL_WIDTH 20
 #define LEVEL_HEIGHT 8
 
-constexpr char SPRITESHEET_FILEPATH[] = "assets/images/black.png",
-           AI1_FILEPATH[]       = "assets/images/onion.png",
+constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
+           ENEMY1_FILEPATH[]       = "assets/images/drone1.png",
+            ENEMY2_FILEPATH[]       = "assets/images/drone2.png",
+            ENEMY3_FILEPATH[]       = "assets/images/drone3.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
 
 //orb spawns in the center of the city when all the enemies are killed in a certain order
-//the hint is
+//the level is called name of the game which is the hint, because the enemies will be labeled E, T, C and need to be hit in that order
 unsigned int LEVELB_DATA[] = {
     5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
@@ -46,12 +48,18 @@ void LevelB::initialise()
     
     int player_walking_animation[4][4] =
     {
-        {12,13,14,15},  //left
-        {8,9,10,11}, //right
-        {4,5,6,7}, //up
+        {24,25,26,27},  //left
+        {16,17,18,19}, //right
+        {8,9,10,11}, //up
         {0,1,2,3} ,//down
     };
-
+    int player_attacking_animation[4][4] =
+    {
+        {28,29,30,31},  //left
+        {20,21,22,23}, //right
+        {12,13,14,15}, //up
+        {4,5,6,7} ,//down
+    };
     glm::vec3 acceleration = glm::vec3(0.0f, 0.0f, 0.0f);
     
     GLuint player_texture_id = Utility::load_texture(SPRITESHEET_FILEPATH);
@@ -62,11 +70,12 @@ void LevelB::initialise()
            acceleration,              // acceleration
            3.0f,                      // jumping power
            player_walking_animation,  // animation index sets
+           player_attacking_animation,
            0.0f,                      // animation time
            3,                         // animation frame amount
            0,                         // current animation index
            4,                         // animation column amount
-           4,                         // animation row amount
+           8,                         // animation row amount
            0.4f,                      // width
            0.4f,                       // height
            PLAYER
@@ -77,13 +86,18 @@ void LevelB::initialise()
     // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
     
-    GLuint enemy_texture_id = Utility::load_texture(AI1_FILEPATH);
+    GLuint enemy1_texture_id = Utility::load_texture(ENEMY1_FILEPATH);
+    GLuint enemy2_texture_id = Utility::load_texture(ENEMY2_FILEPATH);
+    GLuint enemy3_texture_id = Utility::load_texture(ENEMY2_FILEPATH);
+    m_game_state.enemies[0] =  Entity(enemy1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, CYCLONE, IDLE);
+    m_game_state.enemies[1] =  Entity(enemy2_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, CYCLONE, IDLE);
+    m_game_state.enemies[2] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, CYCLONE, IDLE);
     
     for(int i = 0; i < ENEMY_COUNT; i++){
-        m_game_state.enemies[i] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, CYCLONE, IDLE);
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
         m_game_state.enemies[i].set_lives(5);
     }
+    
     m_game_state.enemies[0].set_position(glm::vec3(1.0f, -4.0f, 0.0f)); //spawn on platforms
     m_game_state.enemies[1].set_position(glm::vec3(10.0f, -1.0f, 0.0f));
     m_game_state.enemies[2].set_position(glm::vec3(10.0f, -4.0f, 0.0f));

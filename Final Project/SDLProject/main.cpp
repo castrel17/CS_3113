@@ -216,19 +216,22 @@ void process_input()
     
     const Uint8 *key_state = SDL_GetKeyboardState(NULL);
 
-    if (key_state[SDL_SCANCODE_LEFT] && !pause_screen)        g_current_scene->get_state().player->move_left();
-        else if (key_state[SDL_SCANCODE_RIGHT] && !pause_screen)  g_current_scene->get_state().player->move_right();
-        else if (key_state[SDL_SCANCODE_UP] && !pause_screen)  g_current_scene->get_state().player->move_up();
-        else if (key_state[SDL_SCANCODE_DOWN] && !pause_screen)  g_current_scene->get_state().player->move_down();
-   //player can't hold down space, they need to repeatedly press to attack
-    if (key_state[SDL_SCANCODE_SPACE] && !pause_screen && !key_pressed && key_pressed_timer == 0.0f) {
-        g_effects->start(SHAKE, 1.0f);
-        g_current_scene->get_state().player->attacking(true);
-        key_pressed_timer = 0.5f;
-        key_pressed = true;
-    }else if(!key_state[SDL_SCANCODE_SPACE] && !pause_screen){
-        g_effects->start(NONE);
-        g_current_scene->get_state().player->attacking(false);
+    if(!pause_screen){
+        if (key_state[SDL_SCANCODE_LEFT])        g_current_scene->get_state().player->move_left();
+            else if (key_state[SDL_SCANCODE_RIGHT])  g_current_scene->get_state().player->move_right();
+            else if (key_state[SDL_SCANCODE_UP])  g_current_scene->get_state().player->move_up();
+            else if (key_state[SDL_SCANCODE_DOWN])  g_current_scene->get_state().player->move_down();
+       //player can't hold down space, they need to repeatedly press to attack
+        if (key_state[SDL_SCANCODE_SPACE] && !key_pressed && key_pressed_timer == 0.0f) {
+            g_effects->start(SHAKE, 1.0f);
+            g_current_scene->get_state().player->attacking(true);
+            key_pressed_timer = 0.5f;
+            key_pressed = true;
+        }else if(!key_state[SDL_SCANCODE_SPACE]){
+            g_effects->start(NONE);
+            g_current_scene->get_state().player->attacking(false);
+        }
+        
     }
 
     if (glm::length( g_current_scene->get_state().player->get_movement()) > 1.0f)
