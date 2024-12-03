@@ -248,7 +248,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(m_attacking){
                         m_invincible = true;
-                        m_invincible_timer = 0.5f;
+                        m_invincible_timer = 0.05f;
                         collidable_entity->dec_lives();
                     }else{
                         dec_lives();
@@ -278,7 +278,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 if(m_entity_type == PLAYER && !m_invincible && collidable_entity->get_entity_type() == ENEMY){
                     if(m_attacking){
                         m_invincible = true;
-                        m_invincible_timer = 0.5f;
+                        m_invincible_timer = 0.05f;
                         collidable_entity->dec_lives();
                     
                     }else{
@@ -332,7 +332,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                 if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(m_attacking){
                         m_invincible = true;
-                        m_invincible_timer = 0.5f;
+                        m_invincible_timer = 1.5f;
                         collidable_entity->dec_lives();
 
                     }else{
