@@ -31,7 +31,7 @@ std::vector<int> actual_kill_order;
 LevelB::~LevelB()
 {
     Mix_FreeMusic(m_game_state.bgm);
-    Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.stomp_sfx);
     Mix_FreeChunk(m_game_state.lose_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
@@ -86,26 +86,27 @@ void LevelB::initialise()
     // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
     
-    GLuint enemy1_texture_id = Utility::load_texture(ENEMY1_FILEPATH);
-    GLuint enemy2_texture_id = Utility::load_texture(ENEMY2_FILEPATH);
-    GLuint enemy3_texture_id = Utility::load_texture(ENEMY2_FILEPATH);
-    m_game_state.enemies[0] =  Entity(enemy1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, CYCLONE, IDLE);
-    m_game_state.enemies[1] =  Entity(enemy2_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, CYCLONE, IDLE);
-    m_game_state.enemies[2] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, CYCLONE, IDLE);
+    GLuint enemy1_texture_id = Utility::load_texture(ENEMY1_FILEPATH); //E
+    GLuint enemy2_texture_id = Utility::load_texture(ENEMY2_FILEPATH); //T
+    GLuint enemy3_texture_id = Utility::load_texture(ENEMY3_FILEPATH); //C
+    m_game_state.enemies[0] =  Entity(enemy1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
+    m_game_state.enemies[1] =  Entity(enemy2_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
+    m_game_state.enemies[2] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
     
     for(int i = 0; i < ENEMY_COUNT; i++){
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
-        m_game_state.enemies[i].set_lives(5);
+        m_game_state.enemies[i].set_lives(4);
+        m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
     }
     
-    m_game_state.enemies[0].set_position(glm::vec3(1.0f, -4.0f, 0.0f)); //spawn on platforms
-    m_game_state.enemies[1].set_position(glm::vec3(10.0f, -1.0f, 0.0f));
-    m_game_state.enemies[2].set_position(glm::vec3(10.0f, -4.0f, 0.0f));
+    m_game_state.enemies[2].set_position(glm::vec3(1.5f, -5.5f, 0.0f)); //bottom left
+    m_game_state.enemies[1].set_position(glm::vec3(17.5f, -1.0f, 0.0f)); //top right
+    m_game_state.enemies[0].set_position(glm::vec3(17.5f, -5.5f, 0.0f)); //bottom right
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
     m_game_state.orb= new Entity(orb_texture_id, 0.0f, 0.5f, 0.5f, ORB);
-    m_game_state.orb->set_position(glm::vec3(18.0f, -1.0f, 0.0f)); //spawn at the end of maze
+    m_game_state.orb->set_position(glm::vec3(9.0f, -3.0f, 0.0f)); //spawn at the end of maze
     m_game_state.orb->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
     
     /**BGM and SFX*/
@@ -115,7 +116,7 @@ void LevelB::initialise()
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
-    m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/jump.wav");
     m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
 }
 
@@ -123,10 +124,6 @@ void LevelB::update(float delta_time)
 {
     if(!m_game_state.pause_screen){
         m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
-        
-        if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
-            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
-        }
         
         if(ENEMY_COUNT == stomped){
             m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
@@ -136,6 +133,7 @@ void LevelB::update(float delta_time)
             m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
             if (m_game_state.enemies[i].get_lives() <= 0 && !m_game_state.enemies[i].get_stomped()) {
                 stomped++;
+                Mix_PlayChannel(-1, m_game_state.stomp_sfx, 0);
                 m_game_state.enemies[i].set_stomped(true);
                 actual_kill_order.push_back(i);
                 //check kill order
@@ -170,7 +168,7 @@ void LevelB::render(ShaderProgram *program)
 {
     m_game_state.map->render(program);
     m_game_state.player->render(program);
-    m_game_state.enemies->render(program);
+    for (int i = 0; i < ENEMY_COUNT; i++)    m_game_state.enemies[i].render(program);
     
     //only render the orb when all enemies are killed
     if(ENEMY_COUNT == stomped){

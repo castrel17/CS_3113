@@ -28,7 +28,7 @@ unsigned int MENU_DATA[] =
 Menu::~Menu()
 {
     Mix_FreeMusic(m_game_state.bgm);
-    Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.stomp_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
@@ -100,7 +100,7 @@ void Menu::initialise()
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
-    m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/jump.wav");
 }
 
 void Menu::update(float delta_time)

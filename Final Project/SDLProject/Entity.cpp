@@ -28,9 +28,8 @@ void Entity::ai_activate(Entity *player,float delta_time)
     {
         case GUARD:
             ai_guard(player);
-            break;
-            
-        case CYCLONE:
+            break;  
+        case DRONE:
             ai_spin(player, delta_time);
             break;
         case SHOOTER:
@@ -45,19 +44,26 @@ void Entity::ai_walk()
     m_movement = glm::vec3(1.0f, 0.0f, 0.0f);
 }
 
-//this needs to oscillate with delta_time
 void Entity::ai_spin(Entity *player, float delta_time)
 {
+    m_rotation_angle += 45.0f * delta_time; //always spinning
     switch (m_ai_state) {
-        case IDLE://always jumping
-            m_ai_state = JUMPING;
-            break;
-        case JUMPING:
-            m_is_jumping = true;
+        case IDLE:
+            if (glm::distance(m_position, player->get_position()) < 3.0f) {
+                m_ai_state = WALKING;
+            }
             break;
         case ATTACKING:
             break;
         case WALKING:
+            {
+                glm::vec3 direction_away = m_position - player->get_position();
+                float distance = glm::length(direction_away);
+                if (distance > 0.0f) {
+                    direction_away = glm::normalize(direction_away);
+                    m_movement = direction_away * 0.5f;
+                }
+            }
             break;
         default:
             break;
@@ -95,8 +101,6 @@ void Entity::ai_guard(Entity *player)
             break;
             
         case ATTACKING:
-            break;
-        case JUMPING:
             break;
             
         default:
@@ -452,6 +456,7 @@ void const Entity::check_collision_x(Map *map)
 void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *orb)
 {
     if(player->get_state()){
+        glm::vec3 rotation_matrix = glm::vec3(0.0f, 0.0f, 1.0f);
         if (!m_is_active) return;
      
         m_collided_top    = false;
@@ -493,7 +498,7 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
         }
         //win lose stuff
         if(m_entity_type == PLAYER){
-            if (m_attacking) {
+            if (m_attacking) { //attacking animation for the player
                     m_animation_indices = m_attacking_animation[m_current_direction];
                     m_animation_time += delta_time;
 
@@ -515,7 +520,7 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
                         float frames_per_second = 1.0f / SECONDS_PER_FRAME;
                         if (m_animation_time >= frames_per_second) {
                             m_animation_time = 0.0f;
-                            m_animation_index = (m_animation_index + 1) % 4; // Loop through walking frames
+                            m_animation_index = (m_animation_index + 1) % 4;
                         }
                     }
                 }
@@ -537,10 +542,11 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             m_model_matrix = glm::translate(m_model_matrix, m_position);
             m_scale.x = BASE_SCALE + MAX_AMPLITUDE * glm::sin(delta_time);
             m_scale.y = BASE_SCALE + MAX_AMPLITUDE * glm::sin(delta_time);
+            rotation_matrix = glm::vec3(1.0f, 1.0f, 1.0f);
         }
         m_model_matrix = glm::mat4(1.0f);
         m_model_matrix = glm::translate(m_model_matrix, m_position);
-        m_model_matrix = glm::rotate(m_model_matrix, glm::radians(m_rotation_angle), glm::vec3(1.0f, 1.0f, 1.0f));
+        m_model_matrix = glm::rotate(m_model_matrix, glm::radians(m_rotation_angle), rotation_matrix);
         m_model_matrix = glm::scale(m_model_matrix, m_scale);
     }
 }

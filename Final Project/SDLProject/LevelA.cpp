@@ -22,7 +22,7 @@ unsigned int LEVELA_DATA[] = {
 LevelA::~LevelA()
 {
     Mix_FreeMusic(m_game_state.bgm);
-    Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.stomp_sfx);
     Mix_FreeChunk(m_game_state.lose_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
@@ -73,6 +73,7 @@ void LevelA::initialise()
     );
     m_game_state.player->set_position(glm::vec3(1.0f, -1.0f, 0.0f));
     m_game_state.player->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
+    m_game_state.player->set_lives(8);
     /**Enemies' stuff */
     // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
@@ -101,14 +102,13 @@ void LevelA::initialise()
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
-    m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/jump.wav");
     m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
 }
 
 void LevelA::update(float delta_time)
 {
     if(!m_game_state.pause_screen){
-       // std::cout << std::to_string(m_game_state.player->get_stomp_count()) << "\n";
         m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
         
         if(ENEMY_COUNT == stomped){
@@ -119,6 +119,7 @@ void LevelA::update(float delta_time)
             m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
             if(m_game_state.enemies[i].get_lives()<=0 && !m_game_state.enemies[i].get_stomped()){
                 stomped++;
+                Mix_PlayChannel(-1, m_game_state.stomp_sfx, 0);
                 m_game_state.enemies[i].set_stomped(true);
             }
         }

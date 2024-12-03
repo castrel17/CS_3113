@@ -30,7 +30,7 @@ struct GameState
     //Entity *lives;
     // ————— AUDIO ————— //
     Mix_Music *bgm;
-    Mix_Chunk *jump_sfx;
+    Mix_Chunk *stomp_sfx;
     Mix_Chunk *lose_sfx;
     Mix_Chunk *win_sfx;
     bool sound_played = false;

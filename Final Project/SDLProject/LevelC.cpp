@@ -27,7 +27,7 @@ int stomped = 0;
 LevelC::~LevelC()
 {
     Mix_FreeMusic(m_game_state.bgm);
-    Mix_FreeChunk(m_game_state.jump_sfx);
+    Mix_FreeChunk(m_game_state.stomp_sfx);
     Mix_FreeChunk(m_game_state.lose_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
@@ -105,7 +105,7 @@ void LevelC::initialise()
     Mix_PlayMusic(m_game_state.bgm, -1); //-1 = loop forever
     Mix_VolumeMusic(20.0f);
     
-    m_game_state.jump_sfx = Mix_LoadWAV("assets/audio/jump.wav");
+    m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/jump.wav");
     m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
 }
 
@@ -126,6 +126,7 @@ void LevelC::update(float delta_time)
             m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
             if(m_game_state.enemies[i].get_lives()<=0 && !m_game_state.enemies[i].get_stomped()){
                 stomped++;
+                Mix_PlayChannel(-1, m_game_state.stomp_sfx, 0);
                 m_game_state.enemies[i].set_stomped(true);
             }
         }
