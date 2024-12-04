@@ -24,10 +24,11 @@ LevelA::~LevelA()
     Mix_FreeMusic(m_game_state.bgm);
     Mix_FreeChunk(m_game_state.stomp_sfx);
     Mix_FreeChunk(m_game_state.lose_sfx);
+    Mix_FreeChunk(m_game_state.next_level_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
-    delete    m_game_state.ammo;
+    delete    m_game_state.laser;
 }
 
 void LevelA::initialise()

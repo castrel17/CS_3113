@@ -25,7 +25,7 @@ struct GameState
     Map *map;
     Entity *player;
     Entity *enemies;
-    Entity *ammo;
+    Entity *laser;
     Entity *orb;
     //Entity *lives;
     // ————— AUDIO ————— //

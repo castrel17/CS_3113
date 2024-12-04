@@ -108,6 +108,29 @@ void Entity::ai_guard(Entity *player)
     }
 }
 
+void Entity::ai_shooter(Entity* player, float delta_time) {
+    switch (m_ai_state) {
+        case IDLE:
+            //start walking when player is near
+            if(player->get_state()){
+                if (glm::distance(m_position, player->get_position()) < 3.0f) {
+                    m_ai_state = ATTACKING;
+                } else {
+                    m_movement = glm::vec3(0.0f, 0.0f, 0.0f);
+                }
+            }
+            break;
+        case WALKING:
+            break;
+            
+        case ATTACKING:
+            break;
+            
+        default:
+            break;
+    }
+}
+
 // Default constructor
 Entity::Entity()
     : m_position(0.0f), m_movement(0.0f), m_scale(1.0f, 1.0f, 0.0f), m_model_matrix(1.0f),
@@ -547,6 +570,12 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             m_scale.y = BASE_SCALE + MAX_AMPLITUDE * glm::sin(delta_time);
             rotation_matrix = glm::vec3(1.0f, 1.0f, 1.0f);
         }
+        //restrict position to stay in bounds
+        if (m_position.x < 0.7) m_position.x = 0.7;
+        if (m_position.x > 18.29) m_position.x = 18.29;
+        if (m_position.y > -0.7) m_position.y = -0.7;
+        if (m_position.y < -6.32) m_position.y = -6.3;
+            
         m_model_matrix = glm::mat4(1.0f);
         m_model_matrix = glm::translate(m_model_matrix, m_position);
         m_model_matrix = glm::rotate(m_model_matrix, glm::radians(m_rotation_angle), rotation_matrix);

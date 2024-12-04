@@ -9,6 +9,7 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
             ENEMY2_FILEPATH[]       = "assets/images/drone1.png",
             ENEMY3_FILEPATH[]       = "assets/images/robot.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
+            LASER_FILEPATH[]       = "assets/images/laser.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
 //three zones with three separate AI in varying difficulty that the player needs to fight off
@@ -34,7 +35,7 @@ LevelC::~LevelC()
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
-    delete    m_game_state.ammo;
+    delete    m_game_state.laser;
 }
 
 void LevelC::initialise()
@@ -141,6 +142,17 @@ void LevelC::initialise()
 void LevelC::update(float delta_time)
 {//lose if the player runs out of lives before hitting the orb
     if(!m_game_state.pause_screen){
+        //robot shooting laser
+        float shoot_timer = 0.0f;
+        shoot_timer += delta_time;
+        if(shoot_timer >= 2.0f){
+            GLuint laser_texture_id = Utility::load_texture(LASER_FILEPATH);
+            for(int i = 7; i < ENEMY_COUNT; i++){
+                m_game_state.laser = new Entity(laser_texture_id, 2.0f, 1.0f, 1.0f, ENEMY, LASER, ATTACKING);
+                m_game_state.laser->set_position(m_game_state.enemies[i].get_position());
+            }
+        }
+        
         m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
         
         if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
@@ -166,6 +178,8 @@ void LevelC::update(float delta_time)
             if(m_game_state.orb->get_hit_orb()){
                 Mix_PlayChannel(-1, m_game_state.win_sfx, 0);
                 m_game_state.sound_played = true;
+                m_game_state.player->set_win_status(true);
+                m_game_state.player->set_game_status(true);
             }else if(!m_game_state.orb->get_hit_orb() && m_game_state.player->get_lives() <= 0){
                 Mix_PlayChannel(-1, m_game_state.lose_sfx, 0);
                 m_game_state.sound_played = true;

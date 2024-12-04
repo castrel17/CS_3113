@@ -5,7 +5,7 @@
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
 enum EntityType { PLATFORM, PLAYER, ENEMY, LIVES, ORB };
-enum AIType     { GUARD, DRONE, SHOOTER};
+enum AIType     { GUARD, DRONE, SHOOTER, LASER};
 enum AIState    { WALKING, IDLE, ATTACKING};
 enum Lives{THREE, TWO, ONE, ZERO};
 enum Animation {WALK, ATTACK};
@@ -105,6 +105,7 @@ public:
     void ai_walk();
     void ai_spin(Entity *player, float delta_time);
     void ai_guard(Entity *player);
+    void ai_shooter(Entity* player, float delta_time);
     void pit_detection(Map *map);
     
     void normalise_movement() { m_movement = glm::normalize(m_movement); }
