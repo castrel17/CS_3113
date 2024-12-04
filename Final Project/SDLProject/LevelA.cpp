@@ -5,7 +5,7 @@
 #define LEVEL_HEIGHT 8
 
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
-           AI1_FILEPATH[]       = "assets/images/onion.png",
+           AI1_FILEPATH[]       = "assets/images/rat.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
@@ -14,8 +14,8 @@ unsigned int LEVELA_DATA[] = {
     1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 3,
     5, 0, 4, 0, 3, 2, 4, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 4,
     4, 0, 3, 0, 0, 0, 3, 0, 2, 3, 3, 1, 1, 0, 0, 3, 0, 3, 0, 5,
-    3, 0, 2, 0, 1, 0, 2, 0, 0, 0, 1, 1, 1, 1, 0, 4, 0, 1, 0, 1,
-    2, 0, 1, 2, 1, 0, 2, 2, 2, 0, 1, 1, 1, 1, 0, 5, 0, 2, 0, 2,
+    3, 0, 2, 0, 1, 0, 2, 0, 0, 0, 1, 3, 1, 4, 0, 4, 0, 1, 0, 1,
+    2, 0, 1, 2, 1, 0, 2, 2, 2, 0, 2, 1, 3, 1, 3, 5, 0, 2, 0, 2,
     1, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
     5, 3, 4, 5, 4, 3, 4, 5, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
@@ -85,8 +85,8 @@ void LevelA::initialise()
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
         m_game_state.enemies[i].set_lives(4.0f);
     }
-    m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platforms
-    m_game_state.enemies[1].set_position(glm::vec3(4.0f, -1.0f, 0.0f));
+    m_game_state.enemies[0].set_position(glm::vec3(11.0f, -2.25f, 0.0f)); //spawn on platforms
+    m_game_state.enemies[1].set_position(glm::vec3(4.0f, -1.25f, 0.0f));
     
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated

@@ -4,10 +4,10 @@
 #define LEVEL_WIDTH 14
 #define LEVEL_HEIGHT 8
 
-constexpr char SPRITESHEET_FILEPATH[] = "assets/images/pink.png",
+constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
-ORB_FILEPATH[]       = "assets/images/orb.png",
-            ENEMY_FILEPATH[]       = "assets/images/AI1.png";
+                ORB_FILEPATH[]       = "assets/images/orb.png",
+                ENEMY_FILEPATH[]       = "assets/images/rat.png";
 
 
 GLuint g_bkgd_texture_id;
@@ -38,7 +38,7 @@ void Menu::initialise()
 {
     m_game_state.next_scene_id = -1;
     
-    GLuint map_texture_id = Utility::load_texture("assets/images/grocery_tiles.png");
+    GLuint map_texture_id = Utility::load_texture("assets/images/cyber_tiles.png");
     m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, MENU_DATA, map_texture_id, 1.0f, 5, 1);
     
     int player_walking_animation[4][4] =
