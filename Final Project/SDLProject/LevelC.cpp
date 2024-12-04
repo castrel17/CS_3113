@@ -18,10 +18,10 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
 unsigned int LEVELC_DATA[] = {
     5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
     1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 3,
-    5, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 4,
+    5, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 4,
     4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 5,
     3, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1,
-    2, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    2, 3, 4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
     1, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
     5, 3, 4, 5, 4, 3, 4, 5, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
@@ -86,22 +86,29 @@ void LevelC::initialise()
     m_game_state.enemies = new Entity[ENEMY_COUNT];
     
     GLuint enemy1_texture_id = Utility::load_texture(ENEMY1_FILEPATH);
-    GLuint enemy2_texture_id = Utility::load_texture(ENEMY1_FILEPATH);
+    GLuint enemy2_texture_id = Utility::load_texture(ENEMY2_FILEPATH);
+   
     //rats
-    for(int i = 0; i < ENEMY_COUNT; i++){
+    for(int i = 0; i < 3; i++){
         m_game_state.enemies[i] =  Entity(enemy1_texture_id, 4.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
-        m_game_state.enemies[i].set_lives(6.0f);
-        m_game_state.enemies[i].set_position(glm::vec3(i+ 2.5f, -6.25f, 0.0f));
+        m_game_state.enemies[i].set_lives(10.0f);
     }
-
+    
+    m_game_state.enemies[0].set_position(glm::vec3(3.0f, -1.25f, 0.0f));
+    m_game_state.enemies[1].set_position(glm::vec3(2.0f, -4.25f, 0.0f));
+    m_game_state.enemies[2].set_position(glm::vec3(5.0f, -6.25f, 0.0f));
     //drones
-//    for(int i = 3; i < ENEMY_COUNT-2; i++){
-//        m_game_state.enemies[i] =  Entity(enemy1_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
-//        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
-//        m_game_state.enemies[i].set_lives(4.0f);
-//        m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
-//    }
+    for(int i = 3; i < ENEMY_COUNT; i++){
+        m_game_state.enemies[i] =  Entity(enemy2_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
+        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
+        m_game_state.enemies[i].set_lives(12.0f);
+        m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
+    }
+    m_game_state.enemies[3].set_position(glm::vec3(6.0f, -2.25f, 0.0f));
+    m_game_state.enemies[4].set_position(glm::vec3(8.0f, -4.25f, 0.0f));
+    m_game_state.enemies[5].set_position(glm::vec3(10.0f, -6.25f, 0.0f));
+    m_game_state.enemies[6].set_position(glm::vec3(12.0f, -4.25f, 0.0f));
     
     //robots
     

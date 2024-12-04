@@ -221,6 +221,8 @@ void process_input()
             else if (key_state[SDL_SCANCODE_RIGHT])  g_current_scene->get_state().player->move_right();
             else if (key_state[SDL_SCANCODE_UP])  g_current_scene->get_state().player->move_up();
             else if (key_state[SDL_SCANCODE_DOWN])  g_current_scene->get_state().player->move_down();
+            else g_current_scene->get_state().player->face_down();
+            
        //player can't hold down space, they need to repeatedly press to attack
         if (key_state[SDL_SCANCODE_SPACE]) {
             g_effects->start(SHAKE, 1.0f);

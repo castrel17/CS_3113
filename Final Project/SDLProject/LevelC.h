@@ -3,7 +3,7 @@
 class LevelC : public Scene {
 public:
     //3 rats, 4 drones, 2 robots
-    int ENEMY_COUNT = 3;
+    int ENEMY_COUNT = 7;
     int lives = 3;
     ~LevelC();
     
