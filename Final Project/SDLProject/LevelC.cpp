@@ -7,7 +7,7 @@
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
            ENEMY1_FILEPATH[]       = "assets/images/rat.png",
             ENEMY2_FILEPATH[]       = "assets/images/drone1.png",
-            ENEMY3_FILEPATH[]       = "assets/images/drone3.png",
+            ENEMY3_FILEPATH[]       = "assets/images/robot.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
@@ -87,7 +87,8 @@ void LevelC::initialise()
     
     GLuint enemy1_texture_id = Utility::load_texture(ENEMY1_FILEPATH);
     GLuint enemy2_texture_id = Utility::load_texture(ENEMY2_FILEPATH);
-   
+    GLuint enemy3_texture_id = Utility::load_texture(ENEMY3_FILEPATH);
+    
     //rats
     for(int i = 0; i < 3; i++){
         m_game_state.enemies[i] =  Entity(enemy1_texture_id, 4.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
@@ -99,7 +100,7 @@ void LevelC::initialise()
     m_game_state.enemies[1].set_position(glm::vec3(2.0f, -4.25f, 0.0f));
     m_game_state.enemies[2].set_position(glm::vec3(5.0f, -6.25f, 0.0f));
     //drones
-    for(int i = 3; i < ENEMY_COUNT; i++){
+    for(int i = 3; i < 7; i++){
         m_game_state.enemies[i] =  Entity(enemy2_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
         m_game_state.enemies[i].set_lives(12.0f);
@@ -111,7 +112,14 @@ void LevelC::initialise()
     m_game_state.enemies[6].set_position(glm::vec3(12.0f, -4.25f, 0.0f));
     
     //robots
-    
+    for(int i = 7; i < ENEMY_COUNT; i++){
+        m_game_state.enemies[i] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, IDLE);
+        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
+        m_game_state.enemies[i].set_lives(15.0f);
+        m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
+    }
+    m_game_state.enemies[7].set_position(glm::vec3(16.0f, -2.25f, 0.0f));
+    m_game_state.enemies[8].set_position(glm::vec3(15.0f, -5.25f, 0.0f));
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
