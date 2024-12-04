@@ -41,7 +41,7 @@ struct GameState
     
     // ————— POINTERS TO OTHER SCENES ————— //
     int next_scene_id;
-    int lives;
+    float lives;
 };
 
 class Scene {

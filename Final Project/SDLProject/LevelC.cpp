@@ -94,7 +94,7 @@ void LevelC::initialise()
     
     for(int i = 0; i < ENEMY_COUNT; i++){
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
-        m_game_state.enemies[i].set_lives(4);
+        m_game_state.enemies[i].set_lives(4.0f);
         m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
     }
     
@@ -136,6 +136,7 @@ void LevelC::update(float delta_time)
             m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
             if(m_game_state.enemies[i].get_lives()<=0 && !m_game_state.enemies[i].get_stomped()){
                 stomped++;
+                m_game_state.player->inc_lives(0.5f);
                 Mix_PlayChannel(-1, m_game_state.stomp_sfx, 0);
                 m_game_state.enemies[i].set_stomped(true);
             }
@@ -171,6 +172,11 @@ void LevelC::render(ShaderProgram *program)
     program->set_spotlight(1);
     program->set_light_position_matrix(player_pos);
     
+    //round to tenths
+    float roundedLives = std::round(lives * 10.0f) / 10.0f;
+    std::string livesStr = std::to_string(roundedLives);
+    livesStr.erase(livesStr.find('.') + 2);
+    
     if(m_game_state.player->get_game_status()){ //true = over
         if(m_game_state.player->get_win_status()){
             Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Win", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f));
@@ -178,7 +184,7 @@ void LevelC::render(ShaderProgram *program)
             Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f));
         }
     }else{
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
     }
 }
 

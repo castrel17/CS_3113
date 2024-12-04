@@ -83,8 +83,8 @@ void LevelB::initialise()
     m_game_state.player->set_position(glm::vec3(1.0f, -1.0f, 0.0f));
     m_game_state.player->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
     m_game_state.player->set_lives(m_game_state.lives);
+    
     /**Enemies' stuff */
-    // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
     
     GLuint enemy1_texture_id = Utility::load_texture(ENEMY1_FILEPATH); //E
@@ -96,7 +96,7 @@ void LevelB::initialise()
     
     for(int i = 0; i < ENEMY_COUNT; i++){
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
-        m_game_state.enemies[i].set_lives(4);
+        m_game_state.enemies[i].set_lives(6.0f);
         m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
     }
     
@@ -135,6 +135,7 @@ void LevelB::update(float delta_time)
             m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
             if (m_game_state.enemies[i].get_lives() <= 0 && !m_game_state.enemies[i].get_stomped()) {
                 stomped++;
+                m_game_state.player->inc_lives(0.5f);
                 Mix_PlayChannel(-1, m_game_state.stomp_sfx, 0);
                 m_game_state.enemies[i].set_stomped(true);
                 actual_kill_order.push_back(i);
@@ -177,16 +178,21 @@ void LevelB::render(ShaderProgram *program)
         m_game_state.orb->render(program);
     }
     
-    int lives = m_game_state.player->get_lives();
+    float lives = m_game_state.player->get_lives();
     glm::vec3 player_pos = m_game_state.player->get_position();
     
     //spotlight logic
     program->set_spotlight(1);
     program->set_light_position_matrix(player_pos);
     
+    //round to tenths
+    float roundedLives = std::round(lives * 10.0f) / 10.0f;
+    std::string livesStr = std::to_string(roundedLives);
+    livesStr.erase(livesStr.find('.') + 2);
+    Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "The Name Game", 0.1f, 0.005f, glm::vec3(17.0f, -6.5f, 0.0f));//hint
     if(m_game_state.player->get_game_status()){ //true = over
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.5f, 0.0f)); //lives above the players head
     }else{
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
     }
 }

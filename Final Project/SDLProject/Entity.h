@@ -65,7 +65,7 @@ private:
     bool game_over = false;
     bool player_wins = false;
     bool m_on_screen = true;
-    int m_lives = 3;
+    float m_lives = 15.0f;
     bool m_hit_orb = false;
     
     //kill cool down for player and enemy
@@ -149,7 +149,7 @@ public:
     bool      const get_win_status() const { return player_wins; }
     bool      const get_on_screen() const { return m_on_screen; }
     bool      const get_invincible() const { return m_invincible; }
-    int      const get_lives() const { return m_lives; }
+    float      const get_lives() const { return m_lives; }
     bool     const get_stomped() const { return m_stomped; }
     
     void activate()   { m_is_active = true;  };
@@ -160,6 +160,8 @@ public:
     void const set_ai_type(AIType new_ai_type){ m_ai_type = new_ai_type;};
     void const set_ai_state(AIState new_state){ m_ai_state = new_state;};
     void const set_position(glm::vec3 new_position) { m_position = new_position; }
+    void const update_position_x(float new_amount) { m_position.x += new_amount; }
+    void const update_position_y(float new_amount) { m_position.y += new_amount; }
     void const set_start_position(glm::vec3 new_position) { m_start_pos = new_position; }
     void const set_velocity(glm::vec3 new_velocity) { m_velocity = new_velocity; }
     void const set_acceleration(glm::vec3 new_acceleration) { m_acceleration = new_acceleration; }
@@ -179,7 +181,8 @@ public:
     void const inc_stomp_count() {m_stomp_count++; }
     void const set_game_status(bool new_status) {game_over = new_status; }
     void const set_win_status(bool new_status) {player_wins = new_status; }
-    void const set_lives(int new_lives){m_lives = new_lives;}
+    void const set_lives(float new_lives){m_lives = new_lives;}
+    void const inc_lives(float new_lives){m_lives += new_lives;}
     void const set_hit_orb(bool new_status){m_hit_orb = new_status;}
     void const set_invincible(bool new_status) { m_invincible = new_status; }
     void const set_stomped(bool new_status) {m_stomped = new_status; }

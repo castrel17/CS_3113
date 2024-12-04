@@ -73,9 +73,9 @@ void LevelA::initialise()
     );
     m_game_state.player->set_position(glm::vec3(1.0f, -1.0f, 0.0f));
     m_game_state.player->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
-    m_game_state.player->set_lives(8);
+    m_game_state.player->set_lives(15.0f);
+   
     /**Enemies' stuff */
-    // ––––– AI1 (GUARD) ––––– //
     m_game_state.enemies = new Entity[ENEMY_COUNT];
     
     GLuint enemy_texture_id = Utility::load_texture(AI1_FILEPATH);
@@ -83,7 +83,7 @@ void LevelA::initialise()
     for(int i = 0; i < ENEMY_COUNT; i++){
         m_game_state.enemies[i] =  Entity(enemy_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
-        m_game_state.enemies[i].set_lives(4);
+        m_game_state.enemies[i].set_lives(4.0f);
     }
     m_game_state.enemies[0].set_position(glm::vec3(8.0f, -2.0f, 0.0f)); //spawn on platforms
     m_game_state.enemies[1].set_position(glm::vec3(4.0f, -1.0f, 0.0f));
@@ -118,8 +118,9 @@ void LevelA::update(float delta_time)
         
         for (int i = 0; i < ENEMY_COUNT; i++){
             m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
-            if(m_game_state.enemies[i].get_lives()<=0 && !m_game_state.enemies[i].get_stomped()){
+            if(m_game_state.enemies[i].get_lives()<=0.0f && !m_game_state.enemies[i].get_stomped()){
                 stomped++;
+                m_game_state.player->inc_lives(0.5f);
                 Mix_PlayChannel(-1, m_game_state.stomp_sfx, 0);
                 m_game_state.enemies[i].set_stomped(true);
             }
@@ -147,16 +148,21 @@ void LevelA::render(ShaderProgram *program)
     if(ENEMY_COUNT == stomped){
         m_game_state.orb->render(program);
     }
-    int lives = m_game_state.player->get_lives();
+    float lives = m_game_state.player->get_lives();
     glm::vec3 player_pos = m_game_state.player->get_position();
     
     //spotlight logic
     program->set_spotlight(1);
     program->set_light_position_matrix(player_pos);
     
+    //round to tenths
+    float roundedLives = std::round(lives * 10.0f) / 10.0f;
+    std::string livesStr = std::to_string(roundedLives);
+    livesStr.erase(livesStr.find('.') + 2);
+    
     if(m_game_state.player->get_game_status()){ //true = over
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.5f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.0005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.5f, 0.0f)); //lives above the players head
     }else{
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Lives:" + std::to_string(lives), 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.0005f, glm::vec3(player_pos.x-0.95f, player_pos.y +0.5f, 0.0f)); //lives above the players head
     }
 }

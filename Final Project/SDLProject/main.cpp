@@ -106,7 +106,6 @@ void shutdown();
 // ––––– GENERAL FUNCTIONS ––––– //
 void switch_to_scene(Scene *scene, int curr_lives)
 {
-    std::cout << "Switching to scene " << scene << " with lives: " << curr_lives << std::endl;
     g_current_scene = scene;
     scene->set_num_lives(curr_lives);
     g_current_scene->initialise(); // DON'T FORGET THIS STEP!

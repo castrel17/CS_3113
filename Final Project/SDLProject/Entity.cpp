@@ -245,26 +245,26 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 m_collided_top  = true;
                 
                 //enemy hit player in the head
-                if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
+                if(m_entity_type == PLAYER &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(m_attacking){
+                        float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
+                        collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
-                        m_invincible_timer = 0.05f;
+                        m_invincible_timer = 1.5f;
                         collidable_entity->dec_lives();
-                    }else{
+                    }else if(!m_invincible){
                         dec_lives();
-                        if(get_lives() > 0){
+                        if(get_lives() > 0){//knockback based on direction of enemy
+                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                            m_position.y += knockbackDirection*0.75f;
                             m_invincible = true;
                             m_invincible_timer = 1.5f;
-                            std::cout<< "hit 1\n";
                         }else{
-                            std::cout<< "hit & died 1\n";
                             game_over = true;
                         }
                     }
                 }else if(m_entity_type == ORB &&(collidable_entity->get_entity_type() == PLAYER)){
                     m_hit_orb = true;
-                    std::cout<< "hit orb";
-                    
                 }
             } else if (m_velocity.y < -0.09)
             {
@@ -275,26 +275,27 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 m_collided_bottom  = true;
                 
                 //if the player is attacking then the enemy dies, if not then the player loses a life
-                if(m_entity_type == PLAYER && !m_invincible && collidable_entity->get_entity_type() == ENEMY){
+                if(m_entity_type == PLAYER && collidable_entity->get_entity_type() == ENEMY){
                     if(m_attacking){
+                        float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
+                        collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
                         m_invincible_timer = 0.05f;
                         collidable_entity->dec_lives();
-                    
-                    }else{
+                        m_attacking = false;
+                    }else if(!m_invincible){
                         dec_lives();
-                        if(get_lives() > 0){
+                        if(get_lives() > 0){ //knockback based on direction of enemy
+                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                            m_position.y += knockbackDirection*0.5f;
                             m_invincible = true;
                             m_invincible_timer = 1.5f;
-                            std::cout<< "hit 2\n";
                         }else{
-                            std::cout<< "hit & died 2\n";
                             game_over = true;
                         }
                     }
                 }else if(m_entity_type == ORB &&(collidable_entity->get_entity_type() == PLAYER)){
                     m_hit_orb = true;
-                    std::cout<< "hit orb";
                 }
             }
         }
@@ -329,26 +330,28 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
             
             //if the player is attacking then the enemy dies, if not then the player loses a life
             if(m_collided_left || m_collided_right){
-                if(m_entity_type == PLAYER && !m_invincible &&(collidable_entity->get_entity_type() == ENEMY)){
+                if(m_entity_type == PLAYER &&(collidable_entity->get_entity_type() == ENEMY)){
                     if(m_attacking){
+                        float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
+                        collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
                         m_invincible_timer = 1.5f;
                         collidable_entity->dec_lives();
+                        m_attacking = false;
 
-                    }else{
+                    }else if(!m_invincible){
                         dec_lives();
-                        if(get_lives() > 0){
+                        if(get_lives() > 0){//knockback based on direction of enemy
+                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                            m_position.x += knockbackDirection*0.5f;
                             m_invincible = true;
                             m_invincible_timer = 1.5f;
-                            std::cout<< "hit 3\n";
                         }else{
                             game_over = true;
-                            std::cout<< "hit & died 3\n";
                         }
                     }
                 }else if(m_entity_type == ORB &&(collidable_entity->get_entity_type() == PLAYER)){
                     m_hit_orb = true;
-                    std::cout<< "hit orb";
                 }
                 
             }
