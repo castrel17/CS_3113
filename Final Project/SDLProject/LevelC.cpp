@@ -98,7 +98,7 @@ void LevelC::initialise()
         m_game_state.enemies[i].set_lives(10.0f);
     }
     
-    m_game_state.enemies[0].set_position(glm::vec3(2.0f, -1.25f, 0.0f));
+    m_game_state.enemies[0].set_position(glm::vec3(3.0f, -1.25f, 0.0f));
     m_game_state.enemies[1].set_position(glm::vec3(6.0f, -1.25f, 0.0f));
     m_game_state.enemies[2].set_position(glm::vec3(15.0f, -1.25f, 0.0f));
     m_game_state.enemies[3].set_position(glm::vec3(16.0f, -3.25f, 0.0f));
@@ -119,15 +119,15 @@ void LevelC::initialise()
     //robot
     m_game_state.enemies[11] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, ATTACKING);
     m_game_state.enemies[11].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[11].set_lives(15.0f);
+    m_game_state.enemies[11].set_lives(2.0f);
     m_game_state.enemies[11].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
-    m_game_state.enemies[11].set_position(glm::vec3(10.0f, -5.25f, 0.0f));
+    m_game_state.enemies[11].set_position(glm::vec3(10.0f, -6.0f, 0.0f));
     
     //laser
     GLuint laser_texture_id = Utility::load_texture(LASER_FILEPATH);
     m_game_state.laser =  new Entity(laser_texture_id, 10.0f, 1.0f, 1.0f, LASER);
     m_game_state.laser->set_position(glm::vec3(10.0f, -5.25f, 0.0f));
-    m_game_state.laser->set_start_position(glm::vec3(10.0f, -5.25f, 0.0f)); //starts at the robot
+    m_game_state.laser->set_start_position(glm::vec3(10.0f, -6.0f, 0.0f)); //starts at the robot
     m_game_state.laser->set_scale(glm::vec3(0.2f, 0.2f, 0.0f));
     
     

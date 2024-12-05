@@ -203,7 +203,7 @@ void LevelB::render(ShaderProgram *program)
     std::string livesStr = std::to_string(roundedLives);
     livesStr.erase(livesStr.find('.') + 2);
     
-    Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "It's in the name", 0.1f, 0.005f, glm::vec3(17.0f, -6.5f, 0.0f));//hint
+    Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "It's in the name", 0.2f, 0.005f, glm::vec3(15.5f, -6.45f, 0.0f));//hint
     if(m_game_state.player->get_game_status()){ //true = over
         program->set_spotlight(0);
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x, player_pos.y, 0.0f));

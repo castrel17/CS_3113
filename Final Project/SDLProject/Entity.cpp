@@ -117,7 +117,7 @@ void Entity::ai_shooter(Entity* player, float delta_time, Entity* laser) {
             }
             
             if( laser->get_collided_left() || laser->get_collided_right() ){//reset the laser position
-                laser->set_position(laser->get_start_position());
+                laser->set_position(m_position);
             }
             break;
         case DEAD:
@@ -265,7 +265,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 
                 //enemy hit player in the head
                 if(m_entity_type == PLAYER &&(collidable_entity->get_entity_type() == ENEMY || collidable_entity->get_entity_type() == LASER)){
-                    if(m_attacking && collidable_entity->get_entity_type() != LASER){ //can't hit back laser
+                    if(m_attacking){
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
@@ -298,7 +298,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 
                 //if the player is attacking then the enemy dies, if not then the player loses a life
                 if(m_entity_type == PLAYER && (collidable_entity->get_entity_type() == ENEMY || collidable_entity->get_entity_type() == LASER)){
-                    if(m_attacking && collidable_entity->get_entity_type() != LASER){ //can't hit back laser)
+                    if(m_attacking){
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
@@ -355,7 +355,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
             //if the player is attacking then the enemy dies, if not then the player loses a life
             if(m_collided_left || m_collided_right){
                 if(m_entity_type == PLAYER &&(collidable_entity->get_entity_type() == ENEMY || collidable_entity->get_entity_type() == LASER)){
-                    if(m_attacking && collidable_entity->get_entity_type() != LASER){ //can't hit back laser)
+                    if(m_attacking){ 
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
