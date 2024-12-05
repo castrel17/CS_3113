@@ -19,11 +19,11 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
 unsigned int LEVELC_DATA[] = {
     5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
-    5, 4, 5, 2, 6, 2, 1, 5, 4, 6, 1, 3, 1, 3, 4, 5, 6, 2, 0, 4,
+    5, 4, 5, 2, 4, 2, 1, 5, 4, 5, 1, 3, 1, 3, 4, 5, 1, 2, 0, 4,
     4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
     3, 0, 6, 3, 1, 2, 3, 4, 1, 2, 3, 4, 5, 2, 1, 3, 4, 0, 0, 1,
-    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 6,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3,
+    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 5,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 2,
     5, 3, 4, 5, 4, 3, 4, 5, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
 int stomped = 0;
@@ -44,7 +44,7 @@ void LevelC::initialise()
     m_game_state.next_scene_id = -1;
     
     GLuint map_texture_id = Utility::load_texture("assets/images/cyber_tiles_2.png");
-    m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVELC_DATA, map_texture_id, 1.0f, 6, 1);
+    m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVELC_DATA, map_texture_id, 1.0f, 7, 1);
     
     int player_walking_animation[4][4] =
     {

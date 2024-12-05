@@ -16,13 +16,13 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
 //orb spawns in the center of the city when all the enemies are killed in a certain order
 //the level is called name of the game which is the hint, because the enemies will be labeled E, T, C and need to be hit in that order
 unsigned int LEVELB_DATA[] = {
-    5, 2, 1, 6, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 6, 1, 2,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
-    6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4,
-    4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6,
-    3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6,
+    5, 2, 1, 5, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 6, 1, 2,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 3,
+    6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 4,
+    4, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 6,
+    3, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 0, 0, 0, 1,
+    6, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    1, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6,
     5, 3, 4, 6, 4, 3, 4, 7, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
 
@@ -46,7 +46,7 @@ void LevelB::initialise()
     m_game_state.next_scene_id = -1;
     
     GLuint map_texture_id = Utility::load_texture("assets/images/cyber_tiles_2.png");
-    m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVELB_DATA, map_texture_id, 1.0f, 6, 1);
+    m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, LEVELB_DATA, map_texture_id, 1.0f, 7, 1);
     
     int player_walking_animation[4][4] =
     {

@@ -8,14 +8,14 @@ uniform int attack_on;
 
 float attenuate(float dist, float a, float b)
 {
-     return 1.0 / (1.0 + (a * dist) + (b * dist  * dist));
+     return 0.8 / (1.0 + (a * dist) + (b * dist  * dist));
 }
 
 void main()
 {
     // The brightness is directly based on the distance between the light source's
     // location and the pixel's location
-    float brightness = attenuate(distance(lightPosition, varPosition), 3.0, 0.0);
+    float brightness = attenuate(distance(lightPosition, varPosition), 3.5, 0.0);
     vec4 color = texture2D(diffuse, texCoordVar);
 
     if(spotlight_on == 0){ //1 is on, 0 is off
