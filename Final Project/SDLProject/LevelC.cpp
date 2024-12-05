@@ -102,8 +102,8 @@ void LevelC::initialise()
     m_game_state.enemies[1].set_position(glm::vec3(2.0f, -4.25f, 0.0f));
     m_game_state.enemies[2].set_position(glm::vec3(5.0f, -6.25f, 0.0f));
     //drones
-    for(int i = 3; i < 7; i++){
-        m_game_state.enemies[i] =  Entity(enemy2_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
+    for(int i = 3; i < ENEMY_COUNT-1; i++){
+        m_game_state.enemies[i] =  Entity(enemy2_texture_id, 5.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
         m_game_state.enemies[i].set_lives(12.0f);
         m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
@@ -112,13 +112,16 @@ void LevelC::initialise()
     m_game_state.enemies[4].set_position(glm::vec3(8.0f, -4.25f, 0.0f));
     m_game_state.enemies[5].set_position(glm::vec3(10.0f, -6.25f, 0.0f));
     m_game_state.enemies[6].set_position(glm::vec3(12.0f, -4.25f, 0.0f));
-    
+    m_game_state.enemies[7].set_position(glm::vec3(16.0f, -5.25f, 0.0f));
+    m_game_state.enemies[8].set_position(glm::vec3(17.0f, -3.25f, 0.0f));
+    m_game_state.enemies[9].set_position(glm::vec3(18.0f, -2.25f, 0.0f));
+    m_game_state.enemies[10].set_position(glm::vec3(12.0f, -1.25f, 0.0f));
     //robot
-    m_game_state.enemies[7] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, ATTACKING);
-    m_game_state.enemies[7].set_movement(glm::vec3(0.0f));
-    m_game_state.enemies[7].set_lives(15.0f);
-    m_game_state.enemies[7].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
-    m_game_state.enemies[7].set_position(glm::vec3(16.0f, -2.25f, 0.0f));
+    m_game_state.enemies[11] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, ATTACKING);
+    m_game_state.enemies[11].set_movement(glm::vec3(0.0f));
+    m_game_state.enemies[11].set_lives(15.0f);
+    m_game_state.enemies[11].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
+    m_game_state.enemies[11].set_position(glm::vec3(16.0f, -2.25f, 0.0f));
     
     //laser
     GLuint laser_texture_id = Utility::load_texture(LASER_FILEPATH);
@@ -223,7 +226,7 @@ void LevelC::render(ShaderProgram *program)
             Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x, player_pos.y , 0.0f));
         }
     }else{
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +0.5f, 0.0f)); //lives above the players head
     }
 }
 

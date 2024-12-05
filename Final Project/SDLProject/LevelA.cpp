@@ -4,7 +4,7 @@
 #define LEVEL_WIDTH 20
 #define LEVEL_HEIGHT 8
 
-constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined_2.png",
+constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
            AI1_FILEPATH[]       = "assets/images/rat.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
             LASER_FILEPATH[]       = "assets/images/laser.png",
@@ -157,6 +157,13 @@ void LevelA::render(ShaderProgram *program)
     }
     float lives = m_game_state.player->get_lives();
     glm::vec3 player_pos = m_game_state.player->get_position();
+    
+    //change the color to show the player is invincible/protected
+    if(m_game_state.player->get_invincible()){
+        program->set_attack(1);
+    }else{//default clor
+        program->set_attack(0);
+    }
     
     //spotlight logic
     program->set_spotlight(1);

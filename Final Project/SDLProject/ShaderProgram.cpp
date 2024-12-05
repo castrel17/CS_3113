@@ -30,7 +30,7 @@ void ShaderProgram::load(const char *vertex_shader_file, const char *fragment_sh
     m_colour_uniform             = glGetUniformLocation(m_program_id, "color");
     m_light_position_uniform    = glGetUniformLocation(m_program_id, "lightPosition");
     m_spotlight_on =            glGetUniformLocation(m_program_id, "spotlight_on");
-    
+    m_attack_on =            glGetUniformLocation(m_program_id, "attack_on");
     m_position_attribute = glGetAttribLocation(m_program_id, "position");
     m_tex_coord_attribute = glGetAttribLocation(m_program_id, "texCoord");
     
@@ -126,4 +126,9 @@ void ShaderProgram::set_projection_matrix(const glm::mat4 &matrix)
 void ShaderProgram::set_spotlight(int val){
     glUseProgram(m_program_id);
     glUniform1i(m_spotlight_on, val);
+}
+
+void ShaderProgram::set_attack(int val){
+    glUseProgram(m_program_id);
+    glUniform1i(m_attack_on, val);
 }

@@ -121,7 +121,7 @@ void Entity::ai_shooter(Entity* player, float delta_time, Entity* laser) {
             laser->set_acceleration(glm::vec3(0.0f, -150.0f, 0.0f));
             
             if(laser->get_collided_bottom() || laser->get_collided_left() || laser->get_collided_top() ||laser->get_collided_right() ){//reset the ammo positions when it hits the wall
-                laser->set_position(laser->get_start_position());
+                laser->set_position(m_position);
             }
             break;
         case DEAD:
@@ -273,7 +273,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
-                        m_invincible_timer = 1.5f;
+                        m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
                     }else if(!m_invincible){
                         dec_lives();
@@ -283,7 +283,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                                 m_position.x += knockbackDirection*0.5f;
                             }
                             m_invincible = true;
-                            m_invincible_timer = 1.5f;
+                            m_invincible_timer = 0.5f;
                         }else{
                             game_over = true;
                         }
@@ -308,7 +308,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
-                        m_invincible_timer = 0.05f;
+                        m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
                         m_attacking = false;
                     }else if(!m_invincible){
@@ -319,7 +319,7 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                                 m_position.x += knockbackDirection*0.5f;
                             }
                             m_invincible = true;
-                            m_invincible_timer = 1.5f;
+                            m_invincible_timer = 0.5f;
                         }else{
                             game_over = true;
                         }
@@ -367,7 +367,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
-                        m_invincible_timer = 1.5f;
+                        m_invincible_timer = 0.5f;
                         collidable_entity->dec_lives();
                         m_attacking = false;
 
@@ -380,7 +380,7 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                                 m_position.x += knockbackDirection*0.5f;
                             }
                             m_invincible = true;
-                            m_invincible_timer = 1.5f;
+                            m_invincible_timer = 0.5f;
                         }else{
                             game_over = true;
                         }

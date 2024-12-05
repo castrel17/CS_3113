@@ -42,7 +42,7 @@ private:
     GLuint m_vertex_shader;
     GLuint m_fragment_shader;
     GLuint m_spotlight_on;
-    
+    GLuint m_attack_on;
 public:
 
     void load(const char *vertex_shader_file, const char *fragment_shader_file);
@@ -53,7 +53,7 @@ public:
     void set_colour(float red, float green, float blue, float alpha);
     void set_light_position_matrix(const glm::vec3 position);
     void set_spotlight(int val);
-    
+    void set_attack(int val);
     GLuint const get_program_id()               const { return m_program_id;          };
     GLuint const get_position_attribute()       const { return m_position_attribute;  };
     GLuint const get_tex_coordinate_attribute() const { return m_tex_coord_attribute; };
