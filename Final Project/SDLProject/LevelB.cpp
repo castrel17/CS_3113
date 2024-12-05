@@ -188,6 +188,12 @@ void LevelB::render(ShaderProgram *program)
     float lives = m_game_state.player->get_lives();
     glm::vec3 player_pos = m_game_state.player->get_position();
     
+    //change the color to show the player is invincible/protected
+    if(m_game_state.player->get_invincible()){
+        program->set_attack(1);
+    }else{//default clor
+        program->set_attack(0);
+    }
     //spotlight logic
     program->set_spotlight(1);
     program->set_light_position_matrix(player_pos);
@@ -196,8 +202,10 @@ void LevelB::render(ShaderProgram *program)
     float roundedLives = std::round(lives * 10.0f) / 10.0f;
     std::string livesStr = std::to_string(roundedLives);
     livesStr.erase(livesStr.find('.') + 2);
-    Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "The Name Game", 0.1f, 0.005f, glm::vec3(17.0f, -6.5f, 0.0f));//hint
+    
+    Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "It's in the name", 0.1f, 0.005f, glm::vec3(17.0f, -6.5f, 0.0f));//hint
     if(m_game_state.player->get_game_status()){ //true = over
+        program->set_spotlight(0);
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x, player_pos.y, 0.0f));
     }else{
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +0.5f, 0.0f)); //lives above the players head

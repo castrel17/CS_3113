@@ -65,7 +65,7 @@ void LevelA::initialise()
            player_walking_animation,  // animation index sets
            player_attacking_animation,
            0.0f,                      // animation time
-           3,                         // animation frame amount
+           4,                         // animation frame amount
            0,                         // current animation index
            4,                         // animation column amount
            8,                         // animation row amount
@@ -89,7 +89,7 @@ void LevelA::initialise()
     }
     m_game_state.enemies[0].set_position(glm::vec3(11.0f, -2.25f, 0.0f)); //spawn on platforms
     m_game_state.enemies[1].set_position(glm::vec3(4.0f, -1.25f, 0.0f));
-    
+    m_game_state.enemies[2].set_position(glm::vec3(13.0f, -6.25f, 0.0f));
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
@@ -175,6 +175,7 @@ void LevelA::render(ShaderProgram *program)
     livesStr.erase(livesStr.find('.') + 2);
     
     if(m_game_state.player->get_game_status()){ //true = over
+        program->set_spotlight(0);
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.0005f, glm::vec3(player_pos.x, player_pos.y, 0.0f));
     }else{
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.0005f, glm::vec3(player_pos.x-0.95f, player_pos.y +0.5f, 0.0f)); //lives above the players head

@@ -1,12 +1,4 @@
-/**
-* Author: Elizabeth Castroverde
-* Assignment: Rise of the AI
-* Date due: 2024-11-9, 11:59pm
-* I pledge that I have completed this assignment without
-* collaborating with anyone else, in conformance with the
-* NYU School of Engineering Policies and Procedures on
-* Academic Misconduct.
-**/
+
 #define GL_SILENCE_DEPRECATION
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -77,7 +69,7 @@ void Entity::ai_guard(Entity *player)
         case IDLE:
             //start walking when player is near
             if(player->get_state()){
-                if (glm::distance(m_position, player->get_position()) < 3.0f) {
+                if (glm::distance(m_position, player->get_position()) < 1.5f) {
                     m_ai_state = WALKING;
                 } else {
                     m_movement = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -111,17 +103,21 @@ void Entity::ai_guard(Entity *player)
 
 void Entity::ai_shooter(Entity* player, float delta_time, Entity* laser) {
     switch (m_ai_state) {
+            
         case IDLE:
             break;
         case WALKING:
             break;
             
         case ATTACKING:
-            laser->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
-            laser->set_acceleration(glm::vec3(0.0f, -150.0f, 0.0f));
+            if(player->get_position().x > m_position.x){
+                laser->set_acceleration(glm::vec3(150.0f, 0.0f, 0.0f));
+            }else{
+                laser->set_acceleration(glm::vec3(-150.0f, 0.0f, 0.0f));
+            }
             
-            if(laser->get_collided_bottom() || laser->get_collided_left() || laser->get_collided_top() ||laser->get_collided_right() ){//reset the ammo positions when it hits the wall
-                laser->set_position(m_position);
+            if( laser->get_collided_left() || laser->get_collided_right() ){//reset the laser position
+                laser->set_position(laser->get_start_position());
             }
             break;
         case DEAD:
@@ -278,10 +274,8 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     }else if(!m_invincible){
                         dec_lives();
                         if(get_lives() > 0){//knockback based on direction of enemy
-                            if(collidable_entity->get_ai_type() != SHOOTER){
-                                float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
-                                m_position.x += knockbackDirection*0.5f;
-                            }
+                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                            m_position.x += knockbackDirection*0.5f;
                             m_invincible = true;
                             m_invincible_timer = 0.5f;
                         }else{
@@ -314,10 +308,8 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     }else if(!m_invincible){
                         dec_lives();
                         if(get_lives() > 0){ //knockback based on direction of enemy
-                            if(collidable_entity->get_ai_type() != SHOOTER){
-                                float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
-                                m_position.x += knockbackDirection*0.5f;
-                            }
+                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                            m_position.x += knockbackDirection*0.5f;
                             m_invincible = true;
                             m_invincible_timer = 0.5f;
                         }else{
@@ -374,11 +366,8 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                     }else if(!m_invincible){
                         dec_lives();
                         if(get_lives() > 0){//knockback based on direction of enemy
-                            //don't knock back the robot
-                            if(collidable_entity->get_ai_type() != SHOOTER){
-                                float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
-                                m_position.x += knockbackDirection*0.5f;
-                            }
+                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                            m_position.x += knockbackDirection*0.5f;
                             m_invincible = true;
                             m_invincible_timer = 0.5f;
                         }else{

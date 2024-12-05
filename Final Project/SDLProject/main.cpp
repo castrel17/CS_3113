@@ -188,9 +188,6 @@ void process_input()
                         break;
                     case SDLK_RETURN://this key lets you advance to the next level
                         if(g_current_scene == g_menu)switch_to_scene(g_levels[0], curr_lives);
-                        else if (g_current_scene == g_levelA) switch_to_scene(g_levels[1], curr_lives);
-                        else if (g_current_scene == g_levelB) switch_to_scene(g_levels[2], curr_lives);
-                        else switch_to_scene(g_menu, curr_lives);
                         break;
                     case SDLK_ESCAPE: //this is the pause button
                         if(!pause_screen){
@@ -200,11 +197,6 @@ void process_input()
                             pause_screen = false;
                             g_current_scene->set_pause_screen(pause_screen);
                         }
-                        break;
-                    case SDLK_TAB: //this key lets you move to the previous level
-                        if (g_current_scene == g_levelA) switch_to_scene(g_menu, curr_lives);
-                        else if (g_current_scene == g_levelB) switch_to_scene(g_levelA, curr_lives);
-                        else switch_to_scene(g_levelB, curr_lives);
                         break;
                     default:
                         break;

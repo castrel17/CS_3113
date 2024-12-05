@@ -2,7 +2,7 @@
 
 class LevelA : public Scene {
 public:
-    int ENEMY_COUNT = 2;
+    int ENEMY_COUNT = 3;
     bool reset_level = false;
     int stomped = 0;
     ~LevelA();

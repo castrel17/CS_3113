@@ -18,12 +18,12 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
 //third enemy is the shooter --> robot
 unsigned int LEVELC_DATA[] = {
     5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
-    1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 3,
-    5, 0, 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 4,
-    4, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 5,
-    3, 0, 0, 0, 4, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1,
-    2, 3, 4, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-    1, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
+    5, 4, 1, 2, 3, 2, 1, 5, 4, 2, 1, 3, 1, 3, 4, 5, 4, 2, 0, 4,
+    4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+    3, 0, 2, 3, 1, 2, 3, 4, 1, 2, 3, 4, 4, 2, 1, 3, 5, 0, 0, 1,
+    2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 2,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 3,
     5, 3, 4, 5, 4, 3, 4, 5, 4, 2, 1, 3, 4, 5, 1, 3, 2, 4, 5, 3,
 };
 int stomped = 0;
@@ -92,49 +92,49 @@ void LevelC::initialise()
     GLuint enemy3_texture_id = Utility::load_texture(ENEMY3_FILEPATH);
     
     //rats
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < 7; i++){
         m_game_state.enemies[i] =  Entity(enemy1_texture_id, 4.0f, 1.0f, 1.0f, ENEMY, GUARD, IDLE);
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
         m_game_state.enemies[i].set_lives(10.0f);
     }
     
-    m_game_state.enemies[0].set_position(glm::vec3(3.0f, -1.25f, 0.0f));
-    m_game_state.enemies[1].set_position(glm::vec3(2.0f, -4.25f, 0.0f));
-    m_game_state.enemies[2].set_position(glm::vec3(5.0f, -6.25f, 0.0f));
+    m_game_state.enemies[0].set_position(glm::vec3(2.0f, -1.25f, 0.0f));
+    m_game_state.enemies[1].set_position(glm::vec3(6.0f, -1.25f, 0.0f));
+    m_game_state.enemies[2].set_position(glm::vec3(15.0f, -1.25f, 0.0f));
+    m_game_state.enemies[3].set_position(glm::vec3(16.0f, -3.25f, 0.0f));
+    m_game_state.enemies[4].set_position(glm::vec3(13.0f, -3.25f, 0.0f));
+    m_game_state.enemies[5].set_position(glm::vec3(10.0f, -3.25f, 0.0f));
+    m_game_state.enemies[6].set_position(glm::vec3(4.0f, -3.25f, 0.0f));
     //drones
-    for(int i = 3; i < ENEMY_COUNT-1; i++){
+    for(int i = 7; i < ENEMY_COUNT-1; i++){
         m_game_state.enemies[i] =  Entity(enemy2_texture_id, 5.0f, 1.0f, 1.0f, ENEMY, DRONE, IDLE);
         m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
         m_game_state.enemies[i].set_lives(12.0f);
         m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
     }
-    m_game_state.enemies[3].set_position(glm::vec3(6.0f, -2.25f, 0.0f));
-    m_game_state.enemies[4].set_position(glm::vec3(8.0f, -4.25f, 0.0f));
-    m_game_state.enemies[5].set_position(glm::vec3(10.0f, -6.25f, 0.0f));
-    m_game_state.enemies[6].set_position(glm::vec3(12.0f, -4.25f, 0.0f));
-    m_game_state.enemies[7].set_position(glm::vec3(16.0f, -5.25f, 0.0f));
-    m_game_state.enemies[8].set_position(glm::vec3(17.0f, -3.25f, 0.0f));
-    m_game_state.enemies[9].set_position(glm::vec3(18.0f, -2.25f, 0.0f));
-    m_game_state.enemies[10].set_position(glm::vec3(12.0f, -1.25f, 0.0f));
+    m_game_state.enemies[7].set_position(glm::vec3(18.0f, -3.0f, 0.0f));
+    m_game_state.enemies[8].set_position(glm::vec3(18.0f, -4.0f, 0.0f));
+    m_game_state.enemies[9].set_position(glm::vec3(18.0f, -6.0f, 0.0f));
+    m_game_state.enemies[10].set_position(glm::vec3(1.0f, -4.0f, 0.0f));
     //robot
     m_game_state.enemies[11] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, ATTACKING);
     m_game_state.enemies[11].set_movement(glm::vec3(0.0f));
     m_game_state.enemies[11].set_lives(15.0f);
     m_game_state.enemies[11].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
-    m_game_state.enemies[11].set_position(glm::vec3(16.0f, -2.25f, 0.0f));
+    m_game_state.enemies[11].set_position(glm::vec3(10.0f, -5.25f, 0.0f));
     
     //laser
     GLuint laser_texture_id = Utility::load_texture(LASER_FILEPATH);
     m_game_state.laser =  new Entity(laser_texture_id, 10.0f, 1.0f, 1.0f, LASER);
-    m_game_state.laser->set_position(glm::vec3(16.0f, -2.25f, 0.0f));
-    m_game_state.laser->set_start_position(glm::vec3(16.0f, -2.25f, 0.0f)); //starts at the robot
+    m_game_state.laser->set_position(glm::vec3(10.0f, -5.25f, 0.0f));
+    m_game_state.laser->set_start_position(glm::vec3(10.0f, -5.25f, 0.0f)); //starts at the robot
     m_game_state.laser->set_scale(glm::vec3(0.2f, 0.2f, 0.0f));
     
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
     m_game_state.orb= new Entity(orb_texture_id, 0.0f, 0.5f, 0.5f, ORB);
-    m_game_state.orb->set_position(glm::vec3(16.0f, -3.0f, 0.0f)); //spawn at the end of maze
+    m_game_state.orb->set_position(glm::vec3(2.0f, -1.0f, 0.0f)); //spawn at the start of the maze
     m_game_state.orb->set_scale(glm::vec3(0.2f, 0.2f, 0.0f));
     
     /**BGM and SFX*/
@@ -155,7 +155,7 @@ void LevelC::update(float delta_time)
 
         m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
         
-        m_game_state.laser->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
+       m_game_state.laser->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
         
         if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
             m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
@@ -173,10 +173,6 @@ void LevelC::update(float delta_time)
                 Mix_PlayChannel(-1, m_game_state.stomp_sfx, 0);
                 m_game_state.enemies[i].set_stomped(true);
             }
-        }
-        //this is the robot, only update the laser when they are shooting
-        if( m_game_state.enemies[7].get_ai_state() == ATTACKING){
-            
         }
         m_game_state.lives = m_game_state.player->get_lives();
         
@@ -197,12 +193,19 @@ void LevelC::update(float delta_time)
 void LevelC::render(ShaderProgram *program)
 {
     m_game_state.map->render(program);
-    if(m_game_state.enemies[7].get_ai_state() != DEAD){
+    if(m_game_state.enemies[11].get_ai_state() != DEAD){
         m_game_state.laser->render(program);
     }
     m_game_state.player->render(program);
     for (int i = 0; i < ENEMY_COUNT; i++)    m_game_state.enemies[i].render(program);
-  //  m_game_state.laser->render(program);
+  
+    //change the color to show the player is invincible/protected
+    if(m_game_state.player->get_invincible()){
+        program->set_attack(1);
+    }else{//default clor
+        program->set_attack(0);
+    }
+    
     //only render the orb when all enemies are killed
     if(ENEMY_COUNT == stomped){
         m_game_state.orb->render(program);
@@ -221,8 +224,10 @@ void LevelC::render(ShaderProgram *program)
     
     if(m_game_state.player->get_game_status()){ //true = over
         if(m_game_state.player->get_win_status()){
+            program->set_spotlight(0);
             Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Win", 0.5f, 0.005f, glm::vec3(player_pos.x, player_pos.y, 0.0f));
         }else{
+            program->set_spotlight(0);
             Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x, player_pos.y , 0.0f));
         }
     }else{
