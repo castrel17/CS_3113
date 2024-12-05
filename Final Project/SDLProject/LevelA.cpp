@@ -4,9 +4,10 @@
 #define LEVEL_WIDTH 20
 #define LEVEL_HEIGHT 8
 
-constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
+constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined_2.png",
            AI1_FILEPATH[]       = "assets/images/rat.png",
             ORB_FILEPATH[]       = "assets/images/orb.png",
+            LASER_FILEPATH[]       = "assets/images/laser.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
 unsigned int LEVELA_DATA[] = {
@@ -96,6 +97,11 @@ void LevelA::initialise()
     m_game_state.orb->set_position(glm::vec3(18.0f, -1.0f, 0.0f)); //spawn at the end of maze
     m_game_state.orb->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
     
+    //laser
+    GLuint laser_texture_id = Utility::load_texture(LASER_FILEPATH);
+    m_game_state.laser =  new Entity(laser_texture_id, 1.0f, 1.0f, 1.0f, LASER);
+    m_game_state.laser->set_position(glm::vec3(-10.0f, -1.0f, 0.0f)); //spawn off screen
+    
     /**BGM and SFX*/
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
     
@@ -111,14 +117,14 @@ void LevelA::initialise()
 void LevelA::update(float delta_time)
 {
     if(!m_game_state.pause_screen){
-        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
+        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
         
         if(ENEMY_COUNT == stomped){
-            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
+            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
         }
         
         for (int i = 0; i < ENEMY_COUNT; i++){
-            m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
+            m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb, m_game_state.laser);
             if(m_game_state.enemies[i].get_lives()<=0.0f && !m_game_state.enemies[i].get_stomped()){
                 stomped++;
                 m_game_state.player->inc_lives(0.5f);
@@ -162,7 +168,7 @@ void LevelA::render(ShaderProgram *program)
     livesStr.erase(livesStr.find('.') + 2);
     
     if(m_game_state.player->get_game_status()){ //true = over
-        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.0005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.5f, 0.0f)); //lives above the players head
+        Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.0005f, glm::vec3(player_pos.x, player_pos.y, 0.0f));
     }else{
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.0005f, glm::vec3(player_pos.x-0.95f, player_pos.y +0.5f, 0.0f)); //lives above the players head
     }

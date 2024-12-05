@@ -22,7 +22,7 @@
 #include "ShaderProgram.h"
 #include "Entity.h"
 
-void Entity::ai_activate(Entity *player,float delta_time)
+void Entity::ai_activate(Entity *player,float delta_time, Entity *laser)
 {
     switch (m_ai_type)
     {
@@ -33,6 +33,7 @@ void Entity::ai_activate(Entity *player,float delta_time)
             ai_spin(player, delta_time);
             break;
         case SHOOTER:
+            ai_shooter(player, delta_time, laser);
             break;
         default:
             break;
@@ -108,24 +109,23 @@ void Entity::ai_guard(Entity *player)
     }
 }
 
-void Entity::ai_shooter(Entity* player, float delta_time) {
+void Entity::ai_shooter(Entity* player, float delta_time, Entity* laser) {
     switch (m_ai_state) {
         case IDLE:
-            //start walking when player is near
-            if(player->get_state()){
-                if (glm::distance(m_position, player->get_position()) < 3.0f) {
-                    m_ai_state = ATTACKING;
-                } else {
-                    m_movement = glm::vec3(0.0f, 0.0f, 0.0f);
-                }
-            }
             break;
         case WALKING:
             break;
             
         case ATTACKING:
-            break;
+            laser->set_scale(glm::vec3(0.5f, 0.5f, 0.0f));
+            laser->set_acceleration(glm::vec3(0.0f, -150.0f, 0.0f));
             
+            if(laser->get_collided_bottom() || laser->get_collided_left() || laser->get_collided_top() ||laser->get_collided_right() ){//reset the ammo positions when it hits the wall
+                laser->set_position(laser->get_start_position());
+            }
+            break;
+        case DEAD:
+            break;
         default:
             break;
     }
@@ -268,8 +268,8 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 m_collided_top  = true;
                 
                 //enemy hit player in the head
-                if(m_entity_type == PLAYER &&(collidable_entity->get_entity_type() == ENEMY)){
-                    if(m_attacking){
+                if(m_entity_type == PLAYER &&(collidable_entity->get_entity_type() == ENEMY || collidable_entity->get_entity_type() == LASER)){
+                    if(m_attacking && collidable_entity->get_entity_type() != LASER){ //can't hit back laser
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
@@ -278,8 +278,10 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     }else if(!m_invincible){
                         dec_lives();
                         if(get_lives() > 0){//knockback based on direction of enemy
-                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
-                            m_position.y += knockbackDirection*0.75f;
+                            if(collidable_entity->get_ai_type() != SHOOTER){
+                                float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                                m_position.x += knockbackDirection*0.5f;
+                            }
                             m_invincible = true;
                             m_invincible_timer = 1.5f;
                         }else{
@@ -288,6 +290,9 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     }
                 }else if(m_entity_type == ORB &&(collidable_entity->get_entity_type() == PLAYER)){
                     m_hit_orb = true;
+                }
+                else if(m_entity_type == LASER &&(collidable_entity->get_entity_type() == PLAYER)){
+                    collidable_entity->dec_lives();
                 }
             } else if (m_velocity.y < -0.09)
             {
@@ -298,8 +303,8 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                 m_collided_bottom  = true;
                 
                 //if the player is attacking then the enemy dies, if not then the player loses a life
-                if(m_entity_type == PLAYER && collidable_entity->get_entity_type() == ENEMY){
-                    if(m_attacking){
+                if(m_entity_type == PLAYER && (collidable_entity->get_entity_type() == ENEMY || collidable_entity->get_entity_type() == LASER)){
+                    if(m_attacking && collidable_entity->get_entity_type() != LASER){ //can't hit back laser)
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
@@ -309,8 +314,10 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     }else if(!m_invincible){
                         dec_lives();
                         if(get_lives() > 0){ //knockback based on direction of enemy
-                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
-                            m_position.y += knockbackDirection*0.5f;
+                            if(collidable_entity->get_ai_type() != SHOOTER){
+                                float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                                m_position.x += knockbackDirection*0.5f;
+                            }
                             m_invincible = true;
                             m_invincible_timer = 1.5f;
                         }else{
@@ -319,6 +326,8 @@ void const Entity::check_collision_y(Entity *collidable_entities, int collidable
                     }
                 }else if(m_entity_type == ORB &&(collidable_entity->get_entity_type() == PLAYER)){
                     m_hit_orb = true;
+                }else if(m_entity_type == LASER &&(collidable_entity->get_entity_type() == PLAYER)){
+                    collidable_entity->dec_lives();
                 }
             }
         }
@@ -353,8 +362,8 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
             
             //if the player is attacking then the enemy dies, if not then the player loses a life
             if(m_collided_left || m_collided_right){
-                if(m_entity_type == PLAYER &&(collidable_entity->get_entity_type() == ENEMY)){
-                    if(m_attacking){
+                if(m_entity_type == PLAYER &&(collidable_entity->get_entity_type() == ENEMY || collidable_entity->get_entity_type() == LASER)){
+                    if(m_attacking && collidable_entity->get_entity_type() != LASER){ //can't hit back laser)
                         float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? -1.0f : 1.0f;
                         collidable_entity->update_position_x(knockbackDirection*0.5f);
                         m_invincible = true;
@@ -365,8 +374,11 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                     }else if(!m_invincible){
                         dec_lives();
                         if(get_lives() > 0){//knockback based on direction of enemy
-                            float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
-                            m_position.x += knockbackDirection*0.5f;
+                            //don't knock back the robot
+                            if(collidable_entity->get_ai_type() != SHOOTER){
+                                float knockbackDirection = (m_position.x > collidable_entity->m_position.x) ? 1.0f : -1.0f;
+                                m_position.x += knockbackDirection*0.5f;
+                            }
                             m_invincible = true;
                             m_invincible_timer = 1.5f;
                         }else{
@@ -375,6 +387,8 @@ void const Entity::check_collision_x(Entity *collidable_entities, int collidable
                     }
                 }else if(m_entity_type == ORB &&(collidable_entity->get_entity_type() == PLAYER)){
                     m_hit_orb = true;
+                }else if(m_entity_type == LASER &&(collidable_entity->get_entity_type() == PLAYER)){
+                    collidable_entity->dec_lives();
                 }
                 
             }
@@ -479,7 +493,7 @@ void const Entity::check_collision_x(Map *map)
 }
 
 
-void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *orb)
+void Entity::update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *orb, Entity *laser)
 {
     if(player->get_state()){
         glm::vec3 rotation_matrix = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -492,13 +506,17 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
         
         
         if (m_entity_type == ENEMY) {
-            ai_activate(player, delta_time);
+            ai_activate(player, delta_time, laser);
             if(m_ai_type == GUARD){
                 pit_detection(map);
             }
             if(m_lives < 0){ //move off screen and deactivate once dead
-                set_position(glm::vec3(-10.0f, 0.0f, 0.0f));
+                set_position(glm::vec3(-100.0f, 0.0f, 0.0f));
+                m_ai_state = DEAD;
                 deactivate();
+                if(m_ai_type == SHOOTER){
+                    laser->deactivate();
+                }
             }
         }
         
@@ -571,11 +589,12 @@ void Entity::update(float delta_time, Entity *player, Entity *collidable_entitie
             rotation_matrix = glm::vec3(1.0f, 1.0f, 1.0f);
         }
         //restrict position to stay in bounds
-        if (m_position.x < 0.7) m_position.x = 0.7;
-        if (m_position.x > 18.29) m_position.x = 18.29;
-        if (m_position.y > -0.7) m_position.y = -0.7;
-        if (m_position.y < -6.32) m_position.y = -6.3;
-            
+        if(m_is_active){
+            if (m_position.x < 0.7) m_position.x = 0.7;
+            if (m_position.x > 18.29) m_position.x = 18.29;
+            if (m_position.y > -0.7) m_position.y = -0.7;
+            if (m_position.y < -6.32) m_position.y = -6.3;
+        }
         m_model_matrix = glm::mat4(1.0f);
         m_model_matrix = glm::translate(m_model_matrix, m_position);
         m_model_matrix = glm::rotate(m_model_matrix, glm::radians(m_rotation_angle), rotation_matrix);

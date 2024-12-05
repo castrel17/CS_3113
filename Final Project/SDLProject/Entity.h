@@ -4,9 +4,9 @@
 #include "Map.h"
 #include "glm/glm.hpp"
 #include "ShaderProgram.h"
-enum EntityType { PLATFORM, PLAYER, ENEMY, LIVES, ORB };
-enum AIType     { GUARD, DRONE, SHOOTER, LASER};
-enum AIState    { WALKING, IDLE, ATTACKING};
+enum EntityType { PLATFORM, PLAYER, ENEMY, LIVES, ORB, LASER };
+enum AIType     { GUARD, DRONE, SHOOTER};
+enum AIState    { WALKING, IDLE, ATTACKING, DEAD};
 enum Lives{THREE, TWO, ONE, ZERO};
 enum Animation {WALK, ATTACK};
 
@@ -98,14 +98,14 @@ public:
     void const check_collision_y(Map *map);
     void const check_collision_x(Map *map);
     
-    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *orb);
+    void update(float delta_time, Entity *player, Entity *collidable_entities, int collidable_entity_count, Map *map, Entity *orb, Entity *laser);
     void render(ShaderProgram* program);
 
-    void ai_activate(Entity *player, float delta_time);
+    void ai_activate(Entity *player, float delta_time, Entity *laser);
     void ai_walk();
     void ai_spin(Entity *player, float delta_time);
     void ai_guard(Entity *player);
-    void ai_shooter(Entity* player, float delta_time);
+    void ai_shooter(Entity* player, float delta_time, Entity *laser);
     void pit_detection(Map *map);
     
     void normalise_movement() { m_movement = glm::normalize(m_movement); }

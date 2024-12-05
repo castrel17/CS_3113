@@ -13,9 +13,9 @@ constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
             FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png";
 
 //three zones with three separate AI in varying difficulty that the player needs to fight off
-//first enemy is guard with health of 4 --> rat
-//second enemy is the cyclone with health of 5 --> drone
-//third enemy is the shooter with health of 7 --> robocop
+//first enemy is guard --> rat
+//second enemy is the cyclone --> drone
+//third enemy is the shooter --> robot
 unsigned int LEVELC_DATA[] = {
     5, 2, 1, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2,
     1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 3,
@@ -32,6 +32,7 @@ LevelC::~LevelC()
     Mix_FreeMusic(m_game_state.bgm);
     Mix_FreeChunk(m_game_state.stomp_sfx);
     Mix_FreeChunk(m_game_state.lose_sfx);
+    Mix_FreeChunk(m_game_state.win_sfx);
     delete [] m_game_state.enemies;
     delete    m_game_state.player;
     delete    m_game_state.map;
@@ -112,21 +113,26 @@ void LevelC::initialise()
     m_game_state.enemies[5].set_position(glm::vec3(10.0f, -6.25f, 0.0f));
     m_game_state.enemies[6].set_position(glm::vec3(12.0f, -4.25f, 0.0f));
     
-    //robots
-    for(int i = 7; i < ENEMY_COUNT; i++){
-        m_game_state.enemies[i] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, IDLE);
-        m_game_state.enemies[i].set_movement(glm::vec3(0.0f));
-        m_game_state.enemies[i].set_lives(15.0f);
-        m_game_state.enemies[i].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
-    }
+    //robot
+    m_game_state.enemies[7] =  Entity(enemy3_texture_id, 1.0f, 1.0f, 1.0f, ENEMY, SHOOTER, ATTACKING);
+    m_game_state.enemies[7].set_movement(glm::vec3(0.0f));
+    m_game_state.enemies[7].set_lives(15.0f);
+    m_game_state.enemies[7].set_scale(glm::vec3(1.0f, 1.0f, 0.0f));
     m_game_state.enemies[7].set_position(glm::vec3(16.0f, -2.25f, 0.0f));
-    m_game_state.enemies[8].set_position(glm::vec3(15.0f, -5.25f, 0.0f));
+    
+    //laser
+    GLuint laser_texture_id = Utility::load_texture(LASER_FILEPATH);
+    m_game_state.laser =  new Entity(laser_texture_id, 10.0f, 1.0f, 1.0f, LASER);
+    m_game_state.laser->set_position(glm::vec3(16.0f, -2.25f, 0.0f));
+    m_game_state.laser->set_start_position(glm::vec3(16.0f, -2.25f, 0.0f)); //starts at the robot
+    m_game_state.laser->set_scale(glm::vec3(0.2f, 0.2f, 0.0f));
+    
     
     /**ORB*/ //only spawn the orb if all of the enemies are defeated
     GLuint orb_texture_id = Utility::load_texture(ORB_FILEPATH);
     m_game_state.orb= new Entity(orb_texture_id, 0.0f, 0.5f, 0.5f, ORB);
-    m_game_state.orb->set_position(glm::vec3(18.0f, -1.0f, 0.0f)); //spawn at the end of maze
-    m_game_state.orb->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
+    m_game_state.orb->set_position(glm::vec3(16.0f, -3.0f, 0.0f)); //spawn at the end of maze
+    m_game_state.orb->set_scale(glm::vec3(0.2f, 0.2f, 0.0f));
     
     /**BGM and SFX*/
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
@@ -137,40 +143,37 @@ void LevelC::initialise()
     
     m_game_state.stomp_sfx = Mix_LoadWAV("assets/audio/enemy.wav");
     m_game_state.lose_sfx= Mix_LoadWAV("assets/audio/lose.wav");
+    m_game_state.win_sfx= Mix_LoadWAV("assets/audio/win.wav");
 }
 
 void LevelC::update(float delta_time)
 {//lose if the player runs out of lives before hitting the orb
     if(!m_game_state.pause_screen){
-        //robot shooting laser
-        float shoot_timer = 0.0f;
-        shoot_timer += delta_time;
-        if(shoot_timer >= 2.0f){
-            GLuint laser_texture_id = Utility::load_texture(LASER_FILEPATH);
-            for(int i = 7; i < ENEMY_COUNT; i++){
-                m_game_state.laser = new Entity(laser_texture_id, 2.0f, 1.0f, 1.0f, ENEMY, LASER, ATTACKING);
-                m_game_state.laser->set_position(m_game_state.enemies[i].get_position());
-            }
-        }
+
+        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
         
-        m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT + 1, m_game_state.map, m_game_state.orb);
+        m_game_state.laser->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
         
         if(ENEMY_COUNT == m_game_state.player->get_stomp_count()){
-            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
+            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
         }
         
         if(ENEMY_COUNT == stomped){
-            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb);
+            m_game_state.orb->update(delta_time, m_game_state.player, m_game_state.player, 1, m_game_state.map, m_game_state.orb, m_game_state.laser);
         }
         
         for (int i = 0; i < ENEMY_COUNT; i++){
-            m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb);
+            m_game_state.enemies[i].update(delta_time, m_game_state.player, NULL, 0, m_game_state.map, m_game_state.orb, m_game_state.laser);
             if(m_game_state.enemies[i].get_lives()<=0 && !m_game_state.enemies[i].get_stomped()){
                 stomped++;
                 m_game_state.player->inc_lives(0.5f);
                 Mix_PlayChannel(-1, m_game_state.stomp_sfx, 0);
                 m_game_state.enemies[i].set_stomped(true);
             }
+        }
+        //this is the robot, only update the laser when they are shooting
+        if( m_game_state.enemies[7].get_ai_state() == ATTACKING){
+            
         }
         m_game_state.lives = m_game_state.player->get_lives();
         
@@ -191,9 +194,12 @@ void LevelC::update(float delta_time)
 void LevelC::render(ShaderProgram *program)
 {
     m_game_state.map->render(program);
+    if(m_game_state.enemies[7].get_ai_state() != DEAD){
+        m_game_state.laser->render(program);
+    }
     m_game_state.player->render(program);
     for (int i = 0; i < ENEMY_COUNT; i++)    m_game_state.enemies[i].render(program);
-    
+  //  m_game_state.laser->render(program);
     //only render the orb when all enemies are killed
     if(ENEMY_COUNT == stomped){
         m_game_state.orb->render(program);
@@ -212,9 +218,9 @@ void LevelC::render(ShaderProgram *program)
     
     if(m_game_state.player->get_game_status()){ //true = over
         if(m_game_state.player->get_win_status()){
-            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Win", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f));
+            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Win", 0.5f, 0.005f, glm::vec3(player_pos.x, player_pos.y, 0.0f));
         }else{
-            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f));
+            Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "You Lose", 0.5f, 0.005f, glm::vec3(player_pos.x, player_pos.y , 0.0f));
         }
     }else{
         Utility::draw_text(program, Utility::load_texture(FONTSHEET_FILEPATH), "Health:" + livesStr, 0.3f, 0.005f, glm::vec3(player_pos.x-0.75f, player_pos.y +1.0f, 0.0f)); //lives above the players head

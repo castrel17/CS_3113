@@ -7,6 +7,7 @@
 constexpr char SPRITESHEET_FILEPATH[] = "assets/images/combined.png",
                 FONTSHEET_FILEPATH[]         = "assets/fonts/font1.png",
                 ORB_FILEPATH[]       = "assets/images/orb.png",
+                LASER_FILEPATH[]       = "assets/images/laser.png",
                 ENEMY_FILEPATH[]       = "assets/images/rat.png";
 
 
@@ -93,6 +94,11 @@ void Menu::initialise()
     m_game_state.orb->set_position(glm::vec3(18.0f, -1.0f, 0.0f)); //spawn at the end of maze
     m_game_state.orb->set_scale(glm::vec3(0.4f, 0.4f, 0.0f));
     
+    //laser
+    GLuint laser_texture_id = Utility::load_texture(LASER_FILEPATH);
+    m_game_state.laser =  new Entity(laser_texture_id, 1.0f, 1.0f, 1.0f, LASER);
+    m_game_state.laser->set_position(glm::vec3(-10.0f, -1.0f, 0.0f)); //spawn off screen
+    
     /**BGM and SFX*/
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
     
@@ -105,7 +111,7 @@ void Menu::initialise()
 
 void Menu::update(float delta_time)
 {
-    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map,m_game_state.orb);
+    m_game_state.player->update(delta_time, m_game_state.player, m_game_state.enemies, ENEMY_COUNT, m_game_state.map,m_game_state.orb, m_game_state.laser);
     m_game_state.player->deactivate();
     if (m_game_state.player->get_position().y < -10.0f) m_game_state.next_scene_id = 1;
 }
