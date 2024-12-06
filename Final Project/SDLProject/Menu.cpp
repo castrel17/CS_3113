@@ -39,7 +39,7 @@ void Menu::initialise()
 {
     m_game_state.next_scene_id = -1;
     
-    GLuint map_texture_id = Utility::load_texture("assets/images/cyber_tiles.png");
+    GLuint map_texture_id = Utility::load_texture("assets/images/cyber_tiles_3.png");
     m_game_state.map = new Map(LEVEL_WIDTH, LEVEL_HEIGHT, MENU_DATA, map_texture_id, 1.0f, 5, 1);
     
     int player_walking_animation[4][4] =
